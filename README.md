@@ -4,7 +4,7 @@
 In this project we set up a Trino cluster with multiple data source types. We will test the Trino capabilities and benchmark that peformance when running queries with multiple data sources.
 
 ## Set up
-###Trino cluster setup:
+### Trino cluster setup:
 1. Install Java 17.03 or newer:
 ```console
 $ sudo apt install openjdk-17-jdk openjdk-17-jre
@@ -113,6 +113,29 @@ $ chmod +x trino
 $ ./trino --version
 Trino CLI 435
 ```
+
+## Database environment
+We will install the following dbs one in each node of your Trino Cluster:
+
+    - PostgreSQL
+    - Cassandra
+    - Redis 
+
+### PostgreSQL setup:
+1. Install PostgreSQL:
+```console
+$ sudo apt install postgresql postgresql-contrib
+```
+2. PostgreSQL creates a default user with the installation named `postgres`. To access the Postgres switch to that user and run:
+```console
+$ sudo -i -u postgres
+$ psql
+psql (14.10 (Ubuntu 14.10-0ubuntu0.22.04.1))
+Type "help" for help.
+
+postgres=#
+```
+You now have PostgreSQL working in your node. 
 
 
 
