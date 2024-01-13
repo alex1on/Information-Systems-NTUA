@@ -137,9 +137,26 @@ postgres=#
 ```
 You now have PostgreSQL working in your node. 
 
+### Cassandra setup:
+```console
+echo "deb https://debian.cassandra.apache.org 41x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list 
 
+curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
 
+sudo apt-get update
+sudo apt-get install cassandra
+```
+> You may need to install Java 8 or Java 11.
+> You can switch between java versions by running the following command:
 
+> ```console sudo update-alternatives --config java ```
 
+### Redis setup:
+```console
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 
-  
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+sudo apt-get update
+sudo apt-get install redis
+```  
