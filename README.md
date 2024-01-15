@@ -138,18 +138,34 @@ postgres=#
 You now have PostgreSQL working in your node. 
 
 ### Cassandra setup:
+1. Add the Apache repository of Cassandra to the file `cassandra.sources.list`. We use the latest major version 5.0:
 ```console
-echo "deb https://debian.cassandra.apache.org 41x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list 
-
+echo "deb https://debian.cassandra.apache.org 50x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list 
+```
+2. Add the Apache Cassandra repository keys to the list of trusted keys on the server:
+```console
 curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
-
+```
+3. Update the packages:
+```console
 sudo apt-get update
+```
+4. Install Cassandra with APT:
+```console
 sudo apt-get install cassandra
 ```
-> You may need to install Java 8 or Java 11.
-> You can switch between java versions by running the following command:
+To check the Cassandra installation run:
+```console
+$ nodetool status
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address      Load        Tokens  Owns (effective)  Host ID                               Rack
+UN  192.168.1.2  203.77 KiB  16      100.0%            f6939e82-88d9-4cfa-a4f8-512b990ac76e  rack1
+```
+Cassandra is available in your node.
 
-> ```console sudo update-alternatives --config java ```
 
 ### Redis setup:
 ```console
@@ -160,3 +176,54 @@ echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://pack
 sudo apt-get update
 sudo apt-get install redis
 ```  
+
+## Database connection with Trino server
+### PostgreSQL
+1. 
+
+### Cassandra
+1. Following the installation guide for Cassandra it makes the Cassandra server accessible only from localhost. In our cluster it has to be accessible by all the nodes inside our LAN. To achieve that we have to change the Cassandra configuration. In the `cassandra.yaml` configuration file (located in `/etc/cassandra/cassandra.yaml`) we have to make the following changes. Change the seeds from `- seeds: "localhost:7000"` to `- seeds: "your-node-ip:7000"`. Change the listen and rpc addresses as follows. Listen address from `listen_address: localhost` to `listen_address: your-node-ip` and rpc address from `rpc_address: localhost` to `rpc_address: your-node-ip`.
+
+2. Add a "user" (or ROLES as per Cassandra documentation) that will be used to connect to Cassandra from the Trino server we have created. Again at the `cassandra.yaml` configuration we have to enable `PasswordAuthenticator` instead of the default `AllowAllAuthenticator`.  
+```yaml
+authenticator:
+  class_name : org.apache.cassandra.auth.PasswordAuthenticator
+```
+
+Restart the Cassandra service:
+```console
+$ sudo service cassandra restart
+```
+
+Then connect to the Cassandra server as follows:
+> As we previously changed the Cassandra server ip address you have to provide the ip address you previously set as `your-node-ip`
+```console
+$ cqlsh -u cassandra 192.168.1.2
+Password:
+WARNING: cqlsh was built against 5.0-beta1, but this server is 5.0.  All features may not work!
+Connected to Test Cluster at 192.168.1.2:9042
+[cqlsh 6.2.0 | Cassandra 5.0 | CQL spec 3.4.7 | Native protocol v5]
+Use HELP for help.
+cassandra@cqlsh>
+```
+To create a ROLE (user) from inside the cqlsh terminal you can run the following command:
+```console
+cassandra@cqlsh> CREATE ROLE your_username WITH PASSWORD = 'your_password' AND SUPERUSER = true AND LOGIN = true  ;
+```
+The above credentials will be used be the Trino connector to access the Cassandra database server. 
+
+3. Add the Cassandra Trino connector to all the cluster nodes. Create a file inside the Trino Server installation directory at the `/etc/catalog` (if the catalog directory does not exist you also have to create it) named `cassandra.properties`. Add the following lines inside the file:
+```txt
+connector.name=cassandra
+cassandra.contact-points=your_cassandra_node_ip
+cassandra.load-policy.dc-aware.local-dc=datacenter_name
+cassandra.username=your_username
+cassandra.password=your_password
+```
+> You can find the `datacenter_name` in the output of the `nodetool status` terminal command.
+
+4. Verify that the connector works properly by querying the Catalogs inside the Trino server. Entering the `Trino CLI` you can run the `SHOW CATALOGS;` command. Cassandra and its data should appear there. 
+> After the addition of the Cassandra connector a Trino server restart might be needed.
+
+
+### Redis
