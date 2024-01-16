@@ -179,7 +179,66 @@ sudo apt-get install redis
 
 ## Database connection with Trino server
 ### PostgreSQL
-1. 
+1. Make PostgreSQL accessible from all the cluster. The cluster is in a LAN so we can just expose PostgreSQL to the cluster LAN. In the Postgres configuration file `/etc/postgresql/14/main/pg_hba.conf` add the IP addresses of the nodes that we want to connect to the PostgreSQL server. Under the `# IPv4 local connection:` add the following:
+```txt
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            scram-sha-256
+host    all             all             node1-ip/32             md5
+host    all             all             node2-ip/32             md5
+host    all             all             node3-ip/32             md5
+```
+
+To apply the changes restart the PostgreSQL service:
+```console
+service postgresql restart
+```
+
+2. Add a user in the PostgreSQL database that will be used instead of the default user. As in the installation connect to the PostgreSQL shell as follows:
+
+```console
+$ sudo -i -u postgres
+$ psql
+psql (14.10 (Ubuntu 14.10-0ubuntu0.22.04.1))
+Type "help" for help.
+
+postgres=#
+```
+
+Then create a user (ROLE) by running the following command:
+```console
+postgres=# create role your_username with password 'your_password';
+```
+
+When creating a ROLE in PostgreSQL you also have to create database with the same name. Exit the psql and while logged in as `postgres` user in your machine create a database with the same name as your ROLE name (`your_username`):
+
+```console
+postgres@okeanos-master:~$ create db trino
+```
+
+> You shou;d also create a local user (on your machine) by running the `create user --interactive` and putting as a username the same username you specified in your PostgreSQL Role.
+
+You can now login to PostgreSQL by running the following command:
+```console
+$ psql -h your_node_ip -U you_username -d your_database -W
+psql (14.10 (Ubuntu 14.10-0ubuntu0.22.04.1))
+Type "help" for help.
+
+your_username=#
+```
+
+3. Add the PostgreSQL to all the Trino Server nodes. Create a file named `postgres.properties` inside the `/etc/catalog/` directory of the Trino server installation (if the `catalog` directory does not exist, create it) with the following attributes:
+```txt
+connector.name=postgresql
+connection-url=jdbc:postgresql://your_node_ip:5432/your_database
+connection-user=your_usename
+connection-password=your_password
+```
+
+4. Verify that the connector works properly by querying the Catalogs inside the Trino server. Entering the `Trino CLI` you can run the `SHOW CATALOGS;` command. PostgreSQL and its data should appear there. 
+> After the addition of the PostgreSQL connector a Trino server restart might be needed.
+
+
+
 
 ### Cassandra
 1. Following the installation guide for Cassandra it makes the Cassandra server accessible only from localhost. In our cluster it has to be accessible by all the nodes inside our LAN. To achieve that we have to change the Cassandra configuration. In the `cassandra.yaml` configuration file (located in `/etc/cassandra/cassandra.yaml`) we have to make the following changes. Change the seeds from `- seeds: "localhost:7000"` to `- seeds: "your-node-ip:7000"`. Change the listen and rpc addresses as follows. Listen address from `listen_address: localhost` to `listen_address: your-node-ip` and rpc address from `rpc_address: localhost` to `rpc_address: your-node-ip`.
