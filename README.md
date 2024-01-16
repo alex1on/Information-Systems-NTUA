@@ -190,7 +190,7 @@ host    all             all             node3-ip/32             md5
 
 To apply the changes restart the PostgreSQL service:
 ```console
-service postgresql restart
+$ service postgresql restart
 ```
 
 2. Add a user in the PostgreSQL database that will be used instead of the default user. As in the installation connect to the PostgreSQL shell as follows:
