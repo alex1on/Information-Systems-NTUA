@@ -168,12 +168,20 @@ Cassandra is available in your node.
 
 
 ### Redis setup:
+1. Download and install the Redis GPG key:
 ```console
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-
+```
+2. Add the Redis repository to the package manager:
+```console
 echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-
+```
+3. Update the packages:
+```console
 sudo apt-get update
+```
+4. Install Redis with APT:
+```console
 sudo apt-get install redis
 ```  
 
@@ -215,7 +223,7 @@ When creating a ROLE in PostgreSQL you also have to create database with the sam
 postgres@okeanos-master:~$ create db trino
 ```
 
-> You shou;d also create a local user (on your machine) by running the `create user --interactive` and putting as a username the same username you specified in your PostgreSQL Role.
+> You should also create a local user (on your machine) by running the `create user --interactive` and putting as a username the same username you specified in your PostgreSQL Role.
 
 You can now login to PostgreSQL by running the following command:
 ```console
@@ -286,3 +294,35 @@ cassandra.password=your_password
 
 
 ### Redis
+1. Access Redis Configuration file using the following command:
+```console
+sudo vim /etc/redis/redis.conf
+```
+2. Enable Password Authentication by adding the following line in `redis.conf`:
+```console
+requirepass <your_password>
+```
+3. Make Redis listen to a specific (your node's) IP Address. In order to achieve this, add the following line in `redis.conf`:
+```console
+bind <node's 3 IP address>
+```
+To apply the changes restart the Redis service:
+```console
+sudo service redis restart
+```
+4. Run Redis CLI by running:
+```console
+redis-cli -h <node's IP address> -a <your_password>
+```
+5. Add the Redis Trino connector to all the cluster nodes. Create a file inside the Trino Server installation directory at the `/etc/catalog` (if the catalog directory does not exist you also have to create it) named `redis.properties`. Add the following lines inside the file:
+```txt
+connector.name=redis
+redis.table-names=your_list_of_table_names_seperated_with_comma
+redis.user=your_username
+redis.password=your_password
+redis.nodes=your_nodes'_ip_address:6379
+redis.hide-internal-columns=false
+```
+6. Verify that the connector works properly by querying the Catalogs inside the Trino server. Entering the `Trino CLI` you can run the `SHOW CATALOGS;` command. Redis and its data should appear there. 
+> After the addition of the Redis connector a Trino server restart might be needed.
+
