@@ -223,7 +223,8 @@ When creating a ROLE in PostgreSQL you also have to create database with the sam
 postgres=# CREATE DATABASE trino WITH OWNER 'trino' TEMPLATE template0 ENCODING 'LATIN1' LC_COLLATE='en_US.ISO-8859-1' LC_CTYPE='en_US.ISO-8859-1';
 ```
 > The benchmark data we are going to use are from the TPC-DS benchmark suite. The data require `LATIN1` (`ISO-8859-1`) encoding to be loaded properly. You can use the default `UTF-8` if you choose your own data to load. 
-> Important! You will need to add to locale settings on your OS the `ISO-8859-1`. You can check if its already available by running the command `locale -a`. If it doesn't exist on your available locals you can install it by running the `sudo dpkg-reconfigure locales` and selecting the `en_US.ISO-8859-1` in the prompt that opens. 
+
+> **Important!** You will need to add to locale settings on your OS the `ISO-8859-1`. You can check if its already available by running the command `locale -a`. If it doesn't exist on your available locals you can install it by running the `sudo dpkg-reconfigure locales` and selecting the `en_US.ISO-8859-1` in the prompt that opens. 
 
 > You should also create a local user (on your machine) by running the `create user --interactive` and putting as a username the same username you specified in your PostgreSQL Role.
 
