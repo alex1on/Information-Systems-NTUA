@@ -18,7 +18,7 @@ database="trino"
 schema="tpcds"  
 
 # Data directory path
-datadir="../tpc_data"
+datadir="../../tpc_data"
 
 # List of tables ordered based on foreign key dependencies
 tables=(
@@ -65,16 +65,16 @@ copy_data() {
   local file="$1"
   local table_name=$(basename "$file" .dat)
 
-  sed 's/|\{1\}$//' "$file" > "$file".tmp
+  #sed 's/|\{1\}$//' "$file" > "$file".tmp
 
-  local file_tmp="$file".tmp
+  #local file_tmp="$file".tmp
 
   # Execute the COPY command
-  eval "$psql_command -c \"\\COPY $schema.$table_name FROM '$file_tmp' WITH CSV DELIMITER '|' NULL ''\""
+  eval "$psql_command -c \"\\COPY $schema.$table_name FROM '$file' WITH CSV DELIMITER '|' NULL ''\""
 
   echo "Data from $file copied into $schema.$table_name"
 
-  rm "$file_tmp"
+  rm "$file"
 }
 
 # Loop through each table in the correct order
