@@ -254,12 +254,12 @@ connection-password=your_password
 ### Cassandra
 1. Following the installation guide for Cassandra it makes the Cassandra server accessible only from localhost. In our cluster it has to be accessible by all the nodes inside our LAN. To achieve that we have to change the Cassandra configuration. In the `cassandra.yaml` configuration file (located in `/etc/cassandra/cassandra.yaml`) we have to make the following changes. Change the seeds from `- seeds: "localhost:7000"` to `- seeds: "your-node-ip:7000"`. Change the listen and rpc addresses as follows. Listen address from `listen_address: localhost` to `listen_address: your-node-ip` and rpc address from `rpc_address: localhost` to `rpc_address: your-node-ip`.
 
-2. Add a "user" (or ROLES as per Cassandra documentation) that will be used to connect to Cassandra from the Trino server we have created. Again at the `cassandra.yaml` configuration we have to enable `PasswordAuthenticator` instead of the default `AllowAllAuthenticator`.  
+2. Add a "user" (or ROLES as per Cassandra documentation) that will be used to connect to Cassandra from the Trino server we have created. Again at the `cassandra.yaml` configuration we have to enable `PasswordAuthenticator` instead of the default `AllowAllAuthenticator` and `CassandraAuthorizer` instead of the default `AllowAllAuthorizer`.  
 ```yaml
 authenticator:
   class_name : org.apache.cassandra.auth.PasswordAuthenticator
+authorizer: CassandraAuthorizer
 ```
-
 Restart the Cassandra service:
 ```console
 $ sudo service cassandra restart
@@ -280,7 +280,17 @@ To create a ROLE (user) from inside the cqlsh terminal you can run the following
 ```console
 cassandra@cqlsh> CREATE ROLE your_username WITH PASSWORD = 'your_password' AND SUPERUSER = true AND LOGIN = true  ;
 ```
-The above credentials will be used be the Trino connector to access the Cassandra database server. 
+The above credentials will be used by the Trino connector to access the Cassandra database server. 
+
+To create a KEYSPACE (database) via cqlsh (Cassandra CLI) run the following command:
+```console
+CREATE KEYSPACE IF NOT EXISTS tpcds WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1} AND durable_writes = true;
+```
+You may want to grant permissions. You can do so, using the following command:
+```console
+GRANT ALL PERMISSIONS ON KEYSPACE tpcds TO trino;
+```
+We will use tpcds keyspace under the user trino.
 
 3. Add the Cassandra Trino connector to all the cluster nodes. Create a file inside the Trino Server installation directory at the `/etc/catalog` (if the catalog directory does not exist you also have to create it) named `cassandra.properties`. Add the following lines inside the file:
 ```txt
