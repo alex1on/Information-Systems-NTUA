@@ -1,27 +1,19 @@
 #!/bin/bash
 
-# Prompt user for PostgreSQL username
-read -p "Enter PostgreSQL username: " username
+# Determine the script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Check if username is provided
-if [ -z "$username" ]; then
-  echo "Username is required."
-  exit 1
-fi
+# Read PostgreSQL parameters from .env file
+source ../.env
 
-# PostgreSQL connection parameters
-host="192.168.1.1"
-database="trino"
-schema="tpcds"
+# Log in to psql and create the schema
+PGPASSWORD="$POSTGRESQL_PASSWORD" psql -h "$POSTGRESQL_HOST" -U "$POSTGRESQL_USER" -d "$POSTGRESQL_DATABASE" <<EOF
 
-# Log in to psql and create 'tpcds' schema
-psql -h "$host" -U "$username" -d "$database" -W <<EOF
+-- Create the schema if it does not exist
+CREATE SCHEMA IF NOT EXISTS $POSTGRESQL_SCHEMA;
 
--- Create 'tpcds' schema if not exists
-CREATE SCHEMA IF NOT EXISTS $schema;
-
--- Set search_path to 'tpcds'
-SET search_path TO $schema;
+-- Set the search_path to the schema
+SET search_path TO $POSTGRESQL_SCHEMA;
 
 -- Run the scripts to create tables
 \i ../../DSGen-software-code-3.2.0rc1/tools/tpcds.sql;
