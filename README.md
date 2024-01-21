@@ -339,3 +339,31 @@ redis.hide-internal-columns=false
 6. Verify that the connector works properly by querying the Catalogs inside the Trino server. Entering the `Trino CLI` you can run the `SHOW CATALOGS;` command. Redis and its data should appear there. 
 > After the addition of the Redis connector a Trino server restart might be needed.
 
+## Import TPC-DS Benchmark data 
+
+### Set up the TPC-DS benchmark suite
+
+1. Download the TPC-DS source code from their [website](https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp)
+
+2. Unzip the source code:
+```console
+$ unzip TPC-DS-Tool.zip
+```
+
+3. Edit the `makefile` in the `/DSGen-software-code-3.2.0rc1/tools` directory and specify the `OS` of your machine in the `OS=` line of the `makefile`.
+
+4. Compile the code. To successfully compile it without errors you need to install an older version of the `gcc` compiler. Install it by running `sudo apt install gcc-9`.
+> You might also need to install the following packages: `flex`, `bison`, `byacc`
+Run make:
+```console
+$ make CC=ggc-9
+```
+
+### Generate benchmark data
+Again in the `/DSGen-software-code-3.2.0rc1/tools` directory to generate benchmark data run the following command:
+```console
+$ ./dsdgen -scale <size> -dir <save_directory>
+```
+> Specify the data sample size with the `size` parameter. The amount of data is in GBs.
+
+### Load Data to DBs
