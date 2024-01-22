@@ -309,23 +309,23 @@ cassandra.password=your_password
 ### Redis
 1. Access Redis Configuration file using the following command:
 ```console
-sudo vim /etc/redis/redis.conf
+$ sudo vim /etc/redis/redis.conf
 ```
 2. Enable Password Authentication by adding the following line in `redis.conf`:
-```console
+```txt
 requirepass <your_password>
 ```
 3. Make Redis listen to a specific (your node's) IP Address. In order to achieve this, add the following line in `redis.conf`:
-```console
+```txt
 bind <node's 3 IP address>
 ```
 To apply the changes restart the Redis service:
 ```console
-sudo service redis restart
+$ sudo service redis restart
 ```
 4. Run Redis CLI by running:
 ```console
-redis-cli -h <node's IP address> -a <your_password>
+$ redis-cli -h <node's IP address> -a <your_password>
 ```
 5. Add the Redis Trino connector to all the cluster nodes. Create a file inside the Trino Server installation directory at the `/etc/catalog` (if the catalog directory does not exist you also have to create it) named `redis.properties`. Add the following lines inside the file:
 ```txt
