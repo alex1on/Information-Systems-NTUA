@@ -1,8 +1,8 @@
-tables= [
+table_names = [
   "dbgen_version",
   "date_dim",
   "ship_mode",
-  "warehouse",
+  "warehouse"
   "web_site",
   "web_page",
   "income_band",
@@ -56,7 +56,7 @@ primary_keys = [
 
 
 # List of tables structure
-table_structure=[
+table_structure =[
   "dv_version, dv_create_date, dv_create_time, dv_cmdline_args",
   "d_date_sk, d_date_id, d_date, d_month_seq, d_week_seq, d_quarter_seq, d_year, d_dow, d_moy, d_dom, d_qoy, d_fy_year, d_fy_quarter_seq, d_fy_week_seq, d_day_name, d_quarter_name, d_holiday, d_weekend, d_following_holiday, d_first_dom, d_last_dom, d_same_day_ly, d_same_day_lq, d_current_day, d_current_week, d_current_month, d_current_quarter, d_current_year",
   "sm_ship_mode_sk, sm_ship_mode_id, sm_type, sm_code, sm_carrier, sm_contract",
@@ -82,4 +82,33 @@ table_structure=[
   "sr_returned_date_sk, sr_return_time_sk, sr_item_sk, sr_customer_sk, sr_cdemo_sk, sr_hdemo_sk,  sr_addr_sk, sr_store_sk, sr_reason_sk, sr_ticket_number, sr_return_quantity, sr_return_amt, sr_return_tax, sr_return_amt_inc_tax, sr_fee, sr_return_ship_cost, sr_refunded_cash, sr_reversed_charge, sr_store_credit, sr_net_loss",
   " cs_sold_date_sk, cs_sold_time_sk, cs_ship_date_sk, cs_bill_customer_sk, cs_bill_cdemo_sk, cs_bill_hdemo_sk, cs_bill_addr_sk, cs_ship_customer_sk, cs_ship_cdemo_sk, cs_ship_hdemo_sk, cs_ship_addr_sk, cs_call_center_sk, cs_catalog_page_sk, cs_ship_mode_sk, cs_warehouse_sk, cs_item_sk, cs_promo_sk, cs_order_number, cs_quantity, cs_wholesale_cost, cs_list_price, cs_sales_price, cs_ext_discount_amt, cs_ext_sales_price, cs_ext_wholesale_cost, cs_ext_list_price, cs_ext_tax, cs_coupon_amt, cs_ext_ship_cost, cs_net_paid, cs_net_paid_inc_tax, cs_net_paid_inc_ship, cs_net_paid_inc_ship_tax, cs_net_profit",
   " cr_returned_date_sk, cr_returned_time_sk, cr_item_sk, cr_refunded_customer_sk, cr_refunded_cdemo_sk, cr_refunded_hdemo_sk, cr_refunded_addr_sk, cr_returning_customer_sk, cr_returning_cdemo_sk, cr_returning_hdemo_sk, cr_returning_addr_sk, cr_call_center_sk, cr_catalog_page_sk, cr_ship_mode_sk, cr_warehouse_sk, cr_reason_sk, cr_order_number, cr_return_quantity, cr_return_amount, cr_return_tax, cr_return_amt_inc_tax, cr_fee, cr_return_ship_cost, cr_refunded_cash, cr_reversed_charge, cr_store_credit, cr_net_loss"
+]
+
+# List of columns' types
+data_types = [
+  "VARCHAR, VARCHAR, VARCHAR, VARCHAR",
+  "INTEGER, VARCHAR(16), VARCHAR, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, VARCHAR(9), VARCHAR(6), VARCHAR(1), VARCHAR(1), VARCHAR(1), INTEGER, INTEGER, INTEGER, INTEGER, VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1)",
+  "INTEGER, VARCHAR(16), VARCHAR(30), VARCHAR(10), VARCHAR(20), VARCHAR(20)",
+  "BIGINT, VARCHAR, VARCHAR, BIGINT, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, DOUBLE",
+  "INTEGER, VARCHAR(16), VARCHAR, VARCHAR, VARCHAR(50), INTEGER, INTEGER, VARCHAR(50), VARCHAR(40), INTEGER, VARCHAR(50), VARCHAR(100), VARCHAR(40), INTEGER, VARCHAR(50), VARCHAR(10), VARCHAR(60), VARCHAR(15), VARCHAR(10), VARCHAR(60), VARCHAR(30), VARCHAR(2), VARCHAR(10), VARCHAR(20), FLOAT, FLOAT",
+  "INTEGER, VARCHAR(16), VARCHAR, VARCHAR, INTEGER, INTEGER, VARCHAR(1), INTEGER, VARCHAR(100), VARCHAR(50), INTEGER, INTEGER, INTEGER, INTEGER",
+  "INTEGER, INTEGER, INTEGER",
+  "INTEGER, VARCHAR(16), VARCHAR, VARCHAR, INTEGER, INTEGER, VARCHAR(50), VARCHAR(50), INTEGER, INTEGER, VARCHAR(20), VARCHAR(40), INTEGER, VARCHAR(50), VARCHAR(100), VARCHAR(40), INTEGER, VARCHAR(50), INTEGER, VARCHAR(50), INTEGER, VARCHAR(50), VARCHAR(10), VARCHAR(60), VARCHAR(15), VARCHAR(10), VARCHAR(60), VARCHAR(30), VARCHAR(2), VARCHAR(10), VARCHAR(20), FLOAT, FLOAT",
+  "INTEGER, VARCHAR(16), VARCHAR(100)",
+  "INTEGER, VARCHAR(16), VARCHAR, VARCHAR, VARCHAR(200), FLOAT, FLOAT, INTEGER, VARCHAR(50), INTEGER, VARCHAR(50), INTEGER, VARCHAR(50), INTEGER, VARCHAR(50), VARCHAR(20), VARCHAR(20), VARCHAR(20), VARCHAR(10), VARCHAR(10), INTEGER, VARCHAR(50)",
+  "INTEGER, VARCHAR(16), INTEGER, INTEGER, INTEGER, FLOAT, INTEGER, VARCHAR(50), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(1), VARCHAR(100), VARCHAR(15), VARCHAR(1)",
+  "INTEGER, VARCHAR(16), VARCHAR(10), VARCHAR(60), VARCHAR(15), VARCHAR(10), VARCHAR(60), VARCHAR(30), VARCHAR(2), VARCHAR(10), VARCHAR(20), FLOAT, VARCHAR(20)",
+  "INTEGER, VARCHAR(1), VARCHAR(1), VARCHAR(20), INTEGER, VARCHAR(10), INTEGER, INTEGER, INTEGER",
+  "INTEGER, INTEGER, VARCHAR(15), INTEGER, INTEGER",
+  "INTEGER, VARCHAR(16), VARCHAR, VARCHAR, INTEGER, VARCHAR(50), INTEGER, INTEGER, VARCHAR(20), VARCHAR(40), INTEGER, VARCHAR(100), VARCHAR(100), VARCHAR(40), INTEGER, VARCHAR(50), INTEGER, VARCHAR(50), INTEGER, VARCHAR(10), VARCHAR(60), VARCHAR(15), VARCHAR(10), VARCHAR(60), VARCHAR(30), VARCHAR(2), VARCHAR(10), VARCHAR(20), FLOAT, FLOAT",
+  "INTEGER, VARCHAR(16), INTEGER, INTEGER, INTEGER, INTEGER, VARCHAR(2), VARCHAR(20), VARCHAR(20), VARCHAR(20)",
+  "INTEGER, INTEGER, INTEGER, INTEGER",
+  "INTEGER, VARCHAR(16), INTEGER, INTEGER, VARCHAR(50), INTEGER, INTEGER, VARCHAR(100), VARCHAR(100)",
+  "INTEGER, VARCHAR(16), INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, VARCHAR(10), VARCHAR(20), VARCHAR(30), VARCHAR(1), INTEGER, INTEGER, INTEGER, INTEGER, VARCHAR(20), VARCHAR(13), VARCHAR(50), VARCHAR(10)",
+  "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT",
+  "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT",
+  "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT",
+  "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT",
+  "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT",
+  "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT"
 ]
