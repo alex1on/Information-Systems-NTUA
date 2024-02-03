@@ -406,3 +406,28 @@ Upon executing the following commands:
 ./Cassandra/load_data_cql.sh
 ```
 The Cassandra database should have its schema properly established, and data should be successfully loaded.
+
+#### Redis
+
+##### Schema creation:
+Redis, being a key-value database without built-in support for structured schemas, necessitates an unconventional approach for querying data using Trino with SQL queries. To enable this, we generate JSON schema definition files, describing the structure of each "table" in a manner that Trino can interpret as if they were structured tables.
+
+The schema creation and data loading involve the following files:
+- `Redis/utils/tables.py`: Defines arrays/lists with essential information about table definitions, including table names, primary keys, table column names, and data types for each column.
+- `Redis/utils/json_schema.py`: Generates the JSON schema definition file for each table based on the information provided by tables.py.
+
+##### Data loading:
+For loading data into Redis, the following modules and scripts are utilized in conjunction with `Redis/utils/tables.py`:
+- `Redis/utils/redis_connection.py`: Establishes a connection with Redis using information from a `.env` file.
+- `Redis/utils/data_loader.py`: A module responsible for loading data into Redis utilizing hashes.
+- `Redis/load_data_redis.py`: Employes the above modules in order to properly load data into Redis.
+
+Upon executing the following commands:
+```console
+python3 ./Redis/utils/json_schema.py
+python3 ./Redis/load_data_redis.py
+```
+Data is successfully inserted into Redis, and the JSON files are structured in a way that allows Trino to query the Redis data in a structured manner.
+
+##### Note: 
+Given that Redis is an in-memory database and certain tables contain millions of records, not all records can fit in memory. Consequently, the insertion process focuses on a subset of the data for practical considerations.
