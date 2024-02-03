@@ -331,11 +331,17 @@ $ redis-cli -h <node's IP address> -a <your_password>
 ```txt
 connector.name=redis
 redis.table-names=your_list_of_table_names_seperated_with_comma
+redis.default-schema=tpcds
+redis.nodes=your_nodes'_ip_address:6379
+redis.key-prefix-schema-table=true
+redis.key-delimiter=.
+redis.table-description-dir=/home/user/schemas
+redis.hide-internal-columns=true
 redis.user=your_username
 redis.password=your_password
-redis.nodes=your_nodes'_ip_address:6379
-redis.hide-internal-columns=false
 ```
+> The default location of the `Table Description Files` is the path `/home/user/schemas` as they are created automatically a python script [here](#schema-creation-2).
+
 6. Verify that the connector works properly by querying the Catalogs inside the Trino server. Entering the `Trino CLI` you can run the `SHOW CATALOGS;` command. Redis and its data should appear there. 
 > After the addition of the Redis connector a Trino server restart might be needed.
 
@@ -416,6 +422,8 @@ The schema creation and data loading involve the following files:
 - `Redis/utils/tables.py`: Defines arrays/lists with essential information about table definitions, including table names, primary keys, table column names, and data types for each column.
 - `Redis/utils/json_schema.py`: Generates the JSON schema definition file for each table based on the information provided by tables.py.
 
+> The `json_schema.py` creates the schemas as the default location in the directory `/home/user/schemas`. This has to be the same as the directory you have specified in the `redis.properties` connector file of Trino. 
+
 ##### Data loading:
 For loading data into Redis, the following modules and scripts are utilized in conjunction with `Redis/utils/tables.py`:
 - `Redis/utils/redis_connection.py`: Establishes a connection with Redis using information from a `.env` file.
@@ -424,8 +432,8 @@ For loading data into Redis, the following modules and scripts are utilized in c
 
 Upon executing the following commands:
 ```console
-python3 ./Redis/utils/json_schema.py
-python3 ./Redis/load_data_redis.py
+./create_trino_json_table_definitions.sh
+./load_data_redis.sh
 ```
 Data is successfully inserted into Redis, and the JSON files are structured in a way that allows Trino to query the Redis data in a structured manner.
 
