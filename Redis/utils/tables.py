@@ -2,7 +2,7 @@ table_names = [
   "dbgen_version",
   "date_dim",
   "ship_mode",
-  "warehouse"
+  "warehouse",
   "web_site",
   "web_page",
   "income_band",
