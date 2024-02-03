@@ -372,17 +372,37 @@ To set up the database schema and associations, the TPC-DS benchmark provides tw
 2. `tpcds_ri.sql`: Specifies associations between tables by setting foreign key constraints.
 
 #### PostgreSQL
+
 ##### Schema creation:
 Since both are SQL files, they can be used directly without any preprocessing. For this purpose `PostgreSQL/create_schema_pg.sh` is created which executes both, `tpcds.sql` & `tpcds_ri.sql`.  
+
 ##### Data Loading:
 The loading of data is accomplished through the `PostgreSQL/load_data_pg.sh` script, which performs the following steps:
 1. Establishes a connection with PostgreSQL database using information from a `.env` file.
 2. Reads each `.dat` file under the `tpc_data` directory, where each file corresponds to a table and contains data for that table. The files use '|' as a delimiter.
 3. Utilizes the `COPY` command to efficiently load the data into the database.
 
-So. after running the following commands:
+So after running the following commands:
 ```console
 ./PostgreSQL/create_schema_pg.sh
 .PostgreSQL/load_data_pg.sh
 ```
 The database schema should be properly defined, and the PostgreSQL database should be populated with the corresponding data.
+
+#### Cassandra
+
+##### Schema creation:
+As Cassandra lacks the concept of foreign keys and relational integrity, the file `DSGen-software-code-3.2.0rc1/tools/tpcds_ri.sql` is not utilized, and foreign key constraints are not considered. 
+We (correctly) assume that the data adheres to these constraints, and there is no intention to insert additional data or modify existing records.
+
+Since Cassandra does not support SQL, the schema is created using the file `Cassandra/schema.cql`, written in CQL (Cassandra Query Language). This file, after necessary modifications to fit Cassandra, defines a keyspace named `tpcds` and contains the same table definitions as `DSGen-software-code-3.2.0rc1/tools/tpcds.sql`. `Cassandra/create_schema_cql.sh` executes this file.
+
+##### Data loading:
+Data loading in Cassandra follows a similar process to PostgreSQL. The script `Cassandra/load_data_cql.sh` is utilized, employing the `COPY` command to efficiently load the data into the Cassandra database.
+
+Upon executing the following commands:
+```console
+./Cassandra/create_schema_cql.sh
+./Cassandra/load_data_cql.sh
+```
+The Cassandra database should have its schema properly established, and data should be successfully loaded.
