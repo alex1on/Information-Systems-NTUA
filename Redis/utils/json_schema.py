@@ -10,26 +10,18 @@ def create_json_schema(table_name, primary_key, table_columns, col_data_types):
     for column in table_columns:
         data_type = col_data_types[table_columns.index(column)]
 
-        if column in primary_key and len(primary_key) < 2:
-            PREFIX_LEN=len("tpcds."+ table_name + "." + column + ":")
-            key_fields.append({
-                "name": column,
-                "mapping": PREFIX_LEN,
-                "type": "VARCHAR(64)"
-            })
-        else:
-            value_fields.append({
-                "name": column,
-                "mapping": column,
-                "type": data_type
-            })
+        value_fields.append({
+            "name": column,
+            "mapping": column,
+            "type": data_type
+        })
 
-    if len(key_fields) == 0:
-            key_fields.append({
-                "name": "primary_id",
-                "type": "VARCHAR(64)",
-                "hidden": True
-            })
+    # if len(key_fields) == 0:
+    key_fields.append({
+        "name": "primary_id",
+        "type": "VARCHAR(64)",
+        "hidden": True
+    })
 
     json_schema = {
         "tableName": table_name,
