@@ -70,7 +70,8 @@ node-scheduler.include-coordinator=true
 http-server.http.port=8080
 # change localhost with coordinator's ip address
 discovery.uri=http://localhost:8080
-
+```
+```txt
 # config.properties content - for the workers 
 coordinator=false
 http-server.http.port=8080
@@ -81,9 +82,11 @@ discovery.uri=http://localhost:8080
 ```txt
 # node.properties content
 # The name of your cluster 
+node.id=<UUID>
 node.environment=development 
 ```
-
+>You can create a new `uuid` by running the Linux command `uuidgen` in your terminal.
+ 
 ```txt
 # log.properties content
 io.trino=INFO
