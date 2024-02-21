@@ -3,4 +3,3 @@
 queries/query_results/
 /Docs/*
 !/Docs/report.tex
-!/Docs/report.pdf

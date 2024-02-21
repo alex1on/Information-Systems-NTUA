@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{hyperref}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -43,6 +44,41 @@ component, formatting, style, styling, insert
 \end{IEEEkeywords}
 
 \section{Introduction}
+With the term "Big Data" we refer to data sets whose scale, diversity and complexity require new
+architecture, techniques, algorithms and analytics to manage them and extract value from them.
+Big data has transformed the way organizations handle information, providing unprecedented amounts of context and insights.
+
+However, big data makes queries slow and is very difficult and expensive to manage.
+So, this rapid evolution of big data has forced companies and organizations to put a lot of effort on 
+developing new specialised tools designed to manage and analyze those large data sets in an efficient manner.
+In response to these challenges, new cutting-edge solutions emerged, including Trino (formerly known as PrestoDB).
+
+Trino is an open-source distributed SQL query engine designed to query large data sets distributed over
+one or more heterogenous data sources. Among others, Trino has the ability to run federated queries that
+query tables in different data sources such as MySQL, PostgreSQL, Cassandra, Kafka, Redis and many more.
+
+Over the last few years, Trino has draught a lot of attention and nowdays it is widely used by many 
+companies and organizations. Therefore, it is significant to evaluate its performance under different 
+scenarios and circumstances.
+
+In this paper, we benchmark the performnace of Trino across different types of queries, data locations and underlying
+storage technologies. In more detail, we establish a Trino cluster consisting of three nodes, each equipped with a
+different storage system: PostgreSQL on node1, Cassandra on node2 and Redis on node3. The diversity among these three
+database management systems (DBMS) helps us cover three different data models: Relational, Wide-Column and Key-value 
+provding better results. After, the installation and set up of those three specific stores, we generate and load
+data using the well-known \href{https://www.tpc.org/tpcds/}{TPC-DS} benchmark which is also utlized for query generation.
+The size of the data is large enough so that it won't fit in memory, in the order of several GB \& milions of records and
+the queries are diverse enough including both, simple and complex ones (multiple joins and aggregations).
+After generating and loading the data, we pose the generated queries into each of the data sources and we come up with some
+initial measures. Based on those measures we devise different data distribution stategies and we measure the performance
+(query latency, optimizer plan) over different number of workers and different data distribution plans. Our final goal is to
+idneitfy how the distributed execution engine and optimization works under a varying ammount of data, data distributed in
+different engines and with queries of varying difficulty. 
+
+This paper is backed by a GitHub repository, that contains scripts and howtos on how to replicate our Trino cluster, generate and load the data and 
+generate and perform the queries. Additionally, the repository includes the results of our measurements, along with a detailed analysis to provide a 
+thorough understanding of the outcomes.
+
 
 
 \section{Ease of Use}
