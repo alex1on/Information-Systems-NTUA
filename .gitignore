@@ -3,3 +3,5 @@
 queries/query_results/
 /Docs/*
 !/Docs/report.tex
+
+.DS_Store
