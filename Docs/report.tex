@@ -63,10 +63,10 @@ companies and organizations. Therefore, it is significant to evaluate its perfor
 scenarios and circumstances.
 
 In this paper, we benchmark the performnace of Trino across different types of queries, data locations and underlying
-storage technologies. In more detail, we establish a Trino cluster consisting of three nodes, each equipped with a
-different storage system: PostgreSQL on node1, Cassandra on node2 and Redis on node3. The diversity among these three
-database management systems (DBMS) helps us cover three different data models: Relational, Wide-Column and Key-value 
-provding better results. After, the installation and set up of those three specific stores, we generate and load
+storage technologies. In more detail, we establish a Trino cluster consisting of four nodes, a coordinator and three workers 
+where each of them is equipped with a different storage system: PostgreSQL on worker 1, Cassandra on worker 2 and Redis on worker 3. 
+The diversity among these three database management systems (DBMS) helps us cover three different data models: 
+Relational, Wide-Column and Key-value  provding better results. After, the installation and set up of those three specific stores, we generate and load
 data using the well-known \textcolor{linkblue}{\underline{\href{https://www.tpc.org/tpcds/}{TPC-DS}}} benchmark which is also utlized for query generation.
 The size of the data is large enough so that it won't fit in memory, in the order of several GB \& milions of records and
 the queries are diverse enough including both, simple and complex ones (multiple joins and aggregations).
@@ -93,14 +93,14 @@ through the following link:
 
 \subsection{Infrastructure Overview}
 
-For our project we used three virtual machines that were provided by \textcolor{linkblue}{\underline{\href{https://okeanos-knossos.grnet.gr/home/}{~okeanos-knossos}}}.
+For our project we used four virtual machines that were provided by \textcolor{linkblue}{\underline{\href{https://okeanos-knossos.grnet.gr/home/}{~okeanos-knossos}}}.
 okeanos-knossos is a GRNET'S cloud service (IaaS) for the Greek Research and Academic Community that gives access to resources such as 
 virtual machines and virtual networks.
 
 \subsection{Virtual Machines Specification}
 
 \begin{enumerate}
-    \item \textbf{Number of Virtual Machines:} A total of three virtual machines were utilized.
+    \item \textbf{Number of Virtual Machines:} A total of four virtual machines were utilized.
     \item \textbf{Virtual Machine Specifications:}
         \begin{itemize}
             \item \textbf{RAM:} Each virtual machine boasted 8GB of RAM.
@@ -119,9 +119,9 @@ as shown in the figure below:
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{images/LAN.png}
-    \caption{Cluster's LAN}
+    \caption{Cluster's Network Topology}
     \label{fig:LAN}
-  \end{figure}
+\end{figure}
 
 
 \section{Technology Stack}
@@ -136,21 +136,119 @@ as shown in the figure below:
     \item \textbf{TPC-DS Benchmark:} Tool utilized for data and query generation.
 \end{itemize}
 
-Before you begin to format your paper, first write and save the content as a 
-separate text file. Complete all content and organizational editing before 
-formatting. Please note sections \ref{AA}--\ref{SCM} below for more information on 
-proofreading, spelling and grammar.
+\subsection{Trino}
 
-Keep your text and graphic files separate until after the text has been 
-formatted and styled. Do not number text heads---{\LaTeX} will do that 
-for you.
+Trino, formerly known as PrestoDB, is an open-source distributed SQL query engine, build in Java. It is designed to query large ammount of data
+distributed over one or more heterogeneous data sources, using distributed queries.
 
-\subsection{Abbreviations and Acronyms}\label{AA}
-Define abbreviations and acronyms the first time they are used in the text, 
-even after they have been defined in the abstract. Abbreviations such as 
-IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable.
+It was firstly designed as an alternative to tools that query Hadoop Distributed File System (HDFS) using pipelines of MapReduce jobs such as Hive 
+or Pig. However, Trino has been extended to operate over different kinds of data sources, including traditional relational database such as PostgreSQL 
+and other data sources such as Cassandra. Consequently, Trino has the ability to query data lakes housing open column-oriented data file formats 
+like ORC or Parquet. Moreover, it excels in executing federated queries that span tables in different data sources like MySQL, PostgreSQL, Cassandra, Redis and MongoDB.
+Furthermore, Trino is also deisgned to handle data warehousing and analytics tasks and its functionalitites extend to data analysis, the aggregation of huge
+data sets and the generation of reports.
 
+As a distributed query engine, Trino processes data in parallel across multiple servers and it runs on a cluster of servers that contains two types of nodes, 
+a coordinator and a worker. Users interact with the coordinator using their SQL query tool, and the coordinator collaborates with workers to access connected
+data sources. The configuration for this access is stored in catalogs, where parameters like host, port and passwords are defined. Acting as the orchestrator,
+the coordinator distributes workloads in parallel across all workers. Each worker node runs Trino in a seperate JVM instance and processing is further parallelized through threads.
+
+The Trino coordinator is responsible for parsing and optimizing statements, planning queries and managing worker nodes and it is the only node to which clients can submit 
+statements for execution. It maintains oversight of worker activity, coordinates query execution and translates the logical query models into connected tasks. Additionally, 
+coordinator communicates with clients and workers through a REST API and can be configured to also serve as a worker.
+
+On the other hand, Trino workers are servers responsible for executing tasks and processing data. They fetch data from connectors and exchange intermediate data with
+each other. The coordinator is responsible for fetching results from workers and returning the final reuslts to the client. Like coordinator, workers use a REST API 
+with which they communicate to each other.
+
+Accessing many different data sources, querying data and returning results to client in a distributed way, is a very challenging task. For this purpose Trino utilizes many
+different components the most significant and critical of which are connectors, catalogs, schema and table.
+
+Connectors play a crucial role as they are plugins that enable communication with different data sources and storage systems.
+Trino supports various connectors for traditional SQL databases like MySQL, PostgreSQL, Oracle, for NoSQL databases liek MongoDB and Cassandra and for modern data lakes like 
+Hive, Iceberge and Delta Lake. As a result, users can query data from a large variety of different data sources.
+
+Schemas are a way to organize tables. Together, a catalog and schema define a set of tables that can be queried. When accessing Hive or a relational database such as MySQL with Trino, 
+a schema translates to the same concept in the target database. 
+
+A table is a set of unordered rows, which are organized into named columns with types. This is the same as in any relational database. The mapping from source data to tables is defined by the connector.
+
+Catalogs in Trino, are logical containers that hold metadata about the available sources, including schemas, tables and connectors.
+Trino can connect to multiple catalogs, each representing a distinct set of data sources and their associated metadata. 
+Users can switch between catalogs in their queries and access data from different environments without the need to change their SQL statements.
+
+Summarizing the above, the figure below, illustrates Trino's cluster architecture:
+\begin{figure}[h]
+    \includegraphics[width=0.5\textwidth]{images/trino-architecture.png}
+    \caption{Trino Cluster Architechture}
+    \label{fig:trino_architechture}
+\end{figure}
+
+\subsection{PostgreSQL}
+
+PostgreSQL, also known as Postgres, is a highly regarded free and open-source relational database management system (RDBMS) that emphasizes
+extensibility and SQL compliance. The system is designed to handle a diverse range of workloads, from single machines to large-scale data warehouses 
+or web services with numerous concurrent users. PostgreSQL operates seamlessly on major operating systems, including Linux, FreeBSD, OpenBSD, macOS, and Windows.
+Some key features that make PostgreSQL very interesting and powerful, are the followings:
+
+\begin{itemize}
+    \item \textbf{SQL Compliance and Extensibility:} PostgreSQL allows users to define their own data types, operators, functions, and aggregates. This extensibility 
+    provides flexibility for developers to customize and extend the database according to their specific requirements.
+    \item \textbf{ACID Properties:} The system ensures data reliability through transactions with Atomicity, Consistency, Isolation and Durability
+    (ACID) properties, enhancing data integrity and consistency.
+    \item \textbf{Advanced Functionality:} PostgreSQL supports a rich set of features such as automatically updatable views, materialized views, foreign keys providing
+    flexibility and control over database operations.
+    \item \textbf{Concurrency Control:} PostgreSQL employs Multi - Version Concurrency Control (MVCC), which allows multiple transactions to occur simultaneously without interfering with each other. This ensures high concurrency and scalability.
+    \item \textbf{Advanced Query Optimization:} The query planner and optimizer in PostgreSQL are sophisticated, enabling efficient execution plans for complex queries. 
+    It includes features like join optimization, subquery optimization, and parallel query execution.
+\end{itemize}
+
+These features make PostgreSQL a very powerfull and attractive relational DBMS and that's the reason we selected it for our cluster.
+
+\subsection{Cassandra}
+
+Cassandra is an open - source, distributed, wide-column store, NoSQL database management system, designed to handle large amounts of data across many commodity servers,
+providing high availability with no single point of failure. Some of its main features are listed below:
+
+\begin{itemize}
+    \item \textbf{Distirbuted:} Every node in the cluster has the same role and there is no master. Also there is no single point of failure and data is distributed across the cluster, so 
+    each node is responsible for different data.
+    \item \textbf{Replication - Fault Tolerance:} Cassandra supports replication across multiple datacenters, providing lower latency for users. Data is automatically replicated to multiple nodes the number
+    of which can be easily configured.
+    \item \textbf{Scalability:} Cassandra scales horizontally and is designed in such a way, that allows linear increase in write and read throughput by adding new machines in the cluster.
+    \item \textbf{Eventual consistency:} Cassandra is classified as an AP system, meaning that availability and partition tolerance are generaly considered to be more important than consistency. However, 
+    Cassandra manages eventual consistency of reads, upserts and deletes through Tombstones.
+    \item \textbf{Cassandra Query Language:} Cassandra introduced the Cassandra Query Language (CQL), which is similar to SQL and therefore it can execute complex queries efficiently.
+    \item
+\end{itemize}
+
+These feature, in addition to its efficiency and easy scalability contribute to Cassandra being a very powerful and widely used NoSQL database and makes it a perfect database to experiment on. 
+In our project, we also examine Cassandra's scalability so we consider two versions of Cassandra cluster: a single node cluster and a two-node cluster with replication factor of two.
+
+\subsection{Redis}
+
+Redis (Remote Dictionary Server) is an open-source in-memory storage, used as a distributed, in-memory key-value database, cache and message broker, with optional durability. Because it holds all
+data in memoery and because of its design, Redis offer low-latency read and writes, making it particurarly suitable for cases that require a cache. Redis one of the most popular database systems and
+it is frequently used in combination with other databases in order to leverage the strengths of each database for specific use cases. Some key features are listed below:
+
+\begin{itemize}
+    \item \textbf{In - Memory Storage:} Redis stores data in-memory, which allows for extremely fast read and write operations.
+    \item \textbf{Data Structures:}Redis supports a variety of data structures, including strings, hashes, lists, sets and sorted sets. Each data type comes with its own set of operations.
+    \item \textbf{Persistence:} While Redis is an in-memory store, it provides options for persistence. It can be configured to periodically write data to disk, ensuring data durability.
+    \item \textbf{Replication:} Redis supports master-slave replication, allowing for the creation of replicas of the master Redis server. 
+    This provides high availability and fault tolerance, as the slaves can take over if the master fails.
+    \item \textbf{Paritioning:} Redis can be partitioned across multiple nodes, enabling horizontal scaling. This is particularly useful for large datasets and high-throughput scenarios.
+\end{itemize}
+
+Redis is utilized in our project in order to store a subset of the data set and compare its efficiency and speed.
+
+\subsection{TPC-DS Benchmark}
+
+\section{Data Distribution Strategy}
+\section{Process and Methodology}
+\section{Results and Analysis}
+\section{Conclusion}
+\section{References}
 \subsection{Units}
 \begin{itemize}
 \item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
