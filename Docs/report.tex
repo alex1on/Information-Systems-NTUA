@@ -89,40 +89,6 @@ through the following link:
 \begin{center}
 \textcolor{linkblue}{\underline{\href{https://github.com/alex1on/Information-Systems-NTUA}{GitHub Repository}}}
 \end{center}
-\section{Cluster Configuration}
-
-\subsection{Infrastructure Overview}
-
-For our project we used four virtual machines that were provided by \textcolor{linkblue}{\underline{\href{https://okeanos-knossos.grnet.gr/home/}{~okeanos-knossos}}}.
-okeanos-knossos is a GRNET'S cloud service (IaaS) for the Greek Research and Academic Community that gives access to resources such as 
-virtual machines and virtual networks.
-
-\subsection{Virtual Machines Specification}
-
-\begin{enumerate}
-    \item \textbf{Number of Virtual Machines:} A total of four virtual machines were utilized.
-    \item \textbf{Virtual Machine Specifications:}
-        \begin{itemize}
-            \item \textbf{RAM:} Each virtual machine boasted 8GB of RAM.
-            \item \textbf{Memory:} 30GB of memory per virtual machine.
-            \item \textbf{Operating System:} The virtual machines were equipped with Ubuntu 22.04.
-        \end{itemize}
-\end{enumerate}
-
-\subsection{Networking}
-
-For networking we were given one public IPv4 address, which was attached to our master node which also behaves as the Trino coordinator.
-In order to allow the communication between the cluster nodes, we set up a local area network (LAN: 192.168.0.0/23). In more details,
-192.168.0.2 was assigned to the coordinator, 192.168.1.1 to node 1 (PostgreSQL), 192.168.1.2 to node 2 (Cassandra) and 192.168.1.3 to node 3 (Redis)
-as shown in the figure below:
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/LAN.png}
-    \caption{Cluster's Network Topology}
-    \label{fig:LAN}
-\end{figure}
-
 
 \section{Technology Stack}
 
@@ -130,9 +96,9 @@ as shown in the figure below:
 
 \begin{itemize}
     \item \textbf{Trino:} Was utilized as a distributed query engine
-    \item \textbf{PostgreSQL:} Database management systems (DBMS) on first node.
-    \item \textbf{Cassandra:} DBMS on second node.
-    \item \textbf{Redis:} DBMS on third node.
+    \item \textbf{PostgreSQL:} Database management systems (DBMS) on first worker.
+    \item \textbf{Cassandra:} DBMS on second worker.
+    \item \textbf{Redis:} DBMS on third worker.
     \item \textbf{TPC-DS Benchmark:} Tool utilized for data and query generation.
 \end{itemize}
 
@@ -222,7 +188,7 @@ providing high availability with no single point of failure. Some of its main fe
     \item
 \end{itemize}
 
-These feature, in addition to its efficiency and easy scalability contribute to Cassandra being a very powerful and widely used NoSQL database and makes it a perfect database to experiment on. 
+These features, in addition to its efficiency and easy scalability contribute to Cassandra being a very powerful and widely used NoSQL database and makes it a perfect database to experiment on. 
 In our project, we also examine Cassandra's scalability so we consider two versions of Cassandra cluster: a single node cluster and a two-node cluster with replication factor of two.
 
 \subsection{Redis}
@@ -243,6 +209,143 @@ it is frequently used in combination with other databases in order to leverage t
 Redis is utilized in our project in order to store a subset of the data set and compare its efficiency and speed.
 
 \subsection{TPC-DS Benchmark}
+
+As TPC-DS \textcolor{linkblue}{\underline{\href{https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp}{specification document}}} mentions: "TPC-DS is a decision support
+benchmark that models several generally applicable aspects of a decision support system, including queries and data maintenance. The benchmark provides a representative evaluation 
+of performance as a general purpose decision support system.”
+
+In general, TPC-DS is:
+
+\begin{itemize}
+    \item Industry standard benchmark (OLAP / Data Warehouse).
+    \item Implemented for many analytical processing systems - RDBMS, Apache Spark, Apache Flink, etc. 
+    \item It provides a wide range of different SQL queries.
+    \item In incorporates the tools to generate input data of different sizes.
+\end{itemize}
+
+In our project, TPC-DS is utilized for data and query generation.
+
+\section{Installation and Configuration}
+
+In this section we outline the steps that were followed in order to set up our cluster and replicate our working
+environment. We describe the installation and configuration of Trino, the setup of the data sources 
+on each node, and the process of generating and loading the dataset using the TPC-DS Benchmark. 
+More in-depth details, instructions and commands can be found in our GitHub repository.
+\subsection{Cluster and Virtual Machines}
+
+For our project we used four virtual machines (1 coordinator and 3 workers) that were provided by \textcolor{linkblue}{\underline{\href{https://okeanos-knossos.grnet.gr/home/}{~okeanos-knossos}}}.
+okeanos-knossos is a GRNET'S cloud service (IaaS) for the Greek Research and Academic Community that gives access to resources such as 
+virtual machines and virtual networks. Each virtual machine has the same following specifications:
+
+\begin{itemize}
+    \item \textbf{CPU:} 4 Cores - Intel® Xeon® CPU E5-2650 v3
+    \item \textbf{RAM:} 8GB
+    \item \textbf{Disk:} 30GB
+    \item \textbf{Operating System:} Ubuntu Server 22.04 LTS
+\end{itemize}
+
+\subsection{Networking}
+
+For networking we were given one public IPv4 address, which was attached to our master node which also behaves as the Trino coordinator.
+In order to allow the communication between the cluster nodes, we set up a local area network (LAN: 192.168.0.0/23). In more details,
+192.168.0.2 was assigned to the coordinator, 192.168.1.1 to worker 1 (PostgreSQL), 192.168.1.2 to worker 2 (Cassandra) and 192.168.1.3 to worker 3 (Redis)
+as shown in the figure below:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/LAN.png}
+    \caption{Cluster's Network Topology}
+    \label{fig:LAN}
+\end{figure}
+
+After setting up our machines, we used SSH in order to have access to them and proceeded wtih configurations 
+such as default gateway, firewall rules, hostnames etc. We mention, that okeanos provides Ubuntu Server 16.04 so
+we had to upgrade to 22.04. 
+
+\subsection{Prerequisites}
+
+Before we begin, we mention the tools that need to be install:
+
+\begin{itemize}
+    \item {Java 17.03 or later version}
+    \item {Python 3.10.12 or later}
+\end{itemize}
+
+\subsection{Trino Cluster Set Up \& Configuration}
+
+For Trino cluster set up we followed the "Deploying Trino" guide from Trino's \textcolor{linkblue}{\underline{\href{https://trino.io/docs/current/installation/deployment.html}{official site}}}.
+First of all, we downloaded the latest Trino release. Next, we created the etc directory which contains the necessary configuration files:
+
+\begin{itemize}
+    \item \textbf{Node properties:} The node properties file, \texttt{etc/node.properties}, contains configuration specific to each node such as the name of the environment and the unique identifier.
+    \item \textbf{JVM config:} The JVM config file, \texttt{etc/jvm.config}, contains a list of command line options user for launching the Java Virtual Machine. 
+    \item \textbf{Config properties:} The config properties file, \texttt{etc/config.properties}, contains the configuration for the Trino server. It provides information such as the port of the HTTP server and the type of node (coordinator, worker or both). 
+    \item \textbf{Log levels:} The optional log levels file, texttt{etc/log.properties}, allows setting the desired log level (INFO, DEBUG etc).
+\end{itemize}
+
+These files, are present in every node. They also contain the catalogs directory. As mentioned before, Trino accesses data via connectors, which are mounted in catalogs and the connector provides all 
+of the schemas and tables inside of the catalog. So under this directory, there are several \texttt{.properties} file, one for each used data source, that includes information such as port, host and password, 
+that allow Trino nodes to access the different data sources.
+
+In order to be able to query the data located in those databases, we downloaded the \textcolor{linkblue}{\underline{\href{https://trino.io/docs/current/client/cli.html}{Trino CLI executable}}}.
+
+\subsection{Database Installation and Connection with Trino}
+
+Following the instructions from the original sites, we install and set up the databases below:
+
+\begin{itemize}
+    \item \textbf{PostgreSQL:} We installed PostgreSQL 14 on worker 1 (Dowload PostgreSQL \textcolor{linkblue}{\underline{\href{https://www.postgresql.org/download/}{here}}})
+    \item \textbf{Apache Cassandra:} We installed Cassandra 5.0 on worker 2. We followed the \textcolor{linkblue}{\underline{\href{https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html}{Debian packages installation guide}}}
+    \item \textbf{Redis:} We installed Redis on worker 3 (\textcolor{linkblue}{\underline{\href{https://redis.io/docs/install/install-redis/install-redis-on-linux/}{Install Redis on Linux}}})
+\end{itemize}
+
+
+To ensure accessibility of every database from each node within the Trino cluster and enable querying of the data via Trino CLI, we configured each database as outlined below:
+
+\subsubsection{PostgreSQL}
+
+Since we're working on a LAN, we just need to expose PostgreSQL to the cluster LAN. To do so, we edited the \texttt{/etc/postgresql/14/main/pg\_hba.conf} and added
+the IP addresses of the cluster's nodes. We also configured \texttt{etc/catalog/postgres.properties} accordingly.
+
+\subsubsection{Cassandra}
+
+For Cassandra, we adjusted parameters like authenticator, authorizer, seeds, listen\_address and rpc\_address that are located in \texttt{/etc/cassandra/cassandra.yaml} as follows:
+
+\begin{itemize}
+    \item \textbf{authenticator:} class\_name : org.apache.cassandra.auth.PasswordAuthenticator
+    \item \textbf{authorizer:} CassandraAuthorizer
+    \item \textbf{rpc\_address, listen\_address and seeds:} 192.168.1.2 (IP address of worker2 to whom Cassandra is installed)
+\end{itemize}
+
+We also configured \texttt{etc/catalog/cassandra.properties} accordingly. Later, we will mention the changes that need to apply for a two-node Cassandra cluster.
+
+\subsubsection{Redis}
+
+For Redis, we modified \texttt{/etc/redis/redis.conf} and made Redis listen to worker's 3 IP address by setting bind property that IP address. As previous, we adjusted \texttt{etc/catalog/redis.properties} file.
+We should mention here, that Redis doesn't support schema and table definitions. Trino overcomes this issue by forcing the user, to define the schema for each table, using specific table schema definition (JSON in our case)
+files. Trino can access these files using their location which is declared in \texttt{redis.properties}.
+
+
+\subsection{TPC-DS Benchmark installation and data \& query generation}
+
+We download the \textcolor{linkblue}{\underline{\href{https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp}{TPC-DS benchmark source code}}} and compiled it
+utilizing the Makefile that is included in the zip file. Next, we used dsdgen executable to generate a data set of 8GB size and dqgen to generate the 99 queries that the benchmark provides.
+
+\subsection{Data loading}
+
+In order to load the data into the different data sources, we created proper database schemas in PostgreSQL and Cassandra (in Redis we utilized table schema definition files as mentioned earlier) through 
+tpcds.sql file that creates the tables and tpcds\_ri.sql that specifies foreign key constraints. Since Cassandra and Redis don\'t support foreign key constraints, they were applied only to PostgreSQL. Our 
+study is focusing only on querying already existing data and there is no intention to insert, delete or update those data. Since data obbey the constraints in PostgreSQL, we can be sure that the same holds
+for Cassandra and Redis.
+
+After creating the schema and tables, we created scripts in order to load the data into the different databases. For PostgreSQL and Cassandra we took advantage of the COPY command that both, SQL and CQL provide.
+For Redis we used python modules and loaded the data using hashes.
+
+We note that since Redis is an in-memory database and certain tables contain millions of records, not all records can fit in memory and it wouldn't be efficient to overload RAM. Consequently, the insertion process
+focuses on a subset of the data for practical considerations.
+
+In conclusion, we also note,that for our initial experiments, we loaded the complete dataset into both Postgres and Cassandra. Following the initial measurements and theoretical insights, we came up with some early coclusions 
+which helped up devise a better data distributiob strategy as explained later.
 
 \section{Data Distribution Strategy}
 \section{Process and Methodology}
