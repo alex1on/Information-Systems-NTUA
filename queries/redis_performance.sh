@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #### We will test the retrival speed (SELECT statements on the tables). 
 #### Each table will follow the same process.
 # 1. Load the data to Redis
