@@ -9,7 +9,7 @@ In this project we set up a Trino cluster with multiple data source types. We wi
 - [Trino CLI](#trino-cli-setup)
 - [Set up Databases](#database-environment)
 - [How to connect Databases with Trino server](#database-connection-with-trino-server)
-- [TPC-DS](#import-tpc-ds-benchmark-data)
+- [TPC-DS](#working-with-the-tpc-ds-benchmark-suite)
 
 ## Set up
 ### Trino cluster setup:
