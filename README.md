@@ -3,6 +3,14 @@
 ## Overview 
 In this project we set up a Trino cluster with multiple data source types. We will test the Trino capabilities and benchmark that peformance when running queries with multiple data sources.
 
+## Bookmarks
+
+- [Trino cluster](#trino-cluster-setup)
+- [Trino CLI](#trino-cli-setup)
+- [Set up Databases](#database-environment)
+- [How to connect Databases with Trino server](#database-connection-with-trino-server)
+- [TPC-DS](#import-tpc-ds-benchmark-data)
+
 ## Set up
 ### Trino cluster setup:
 1. Install Java 17.03 or newer:
@@ -120,9 +128,9 @@ Trino CLI 435
 ## Database environment
 We will install the following dbs one in each node of your Trino Cluster:
 
-    - PostgreSQL
-    - Cassandra
-    - Redis 
+  - [PostgreSQL](#postgresql-setup)
+  - [Cassandra](#cassandra-setup)
+  - [Redis](#redis-setup)
 
 ### PostgreSQL setup:
 1. Install PostgreSQL:
@@ -189,6 +197,11 @@ sudo apt-get install redis
 ```  
 
 ## Database connection with Trino server
+
+- [PostgreSQL](#postgresql)
+- [Cassandra](#cassandra)
+- [Redis](#redis)
+
 ### PostgreSQL
 1. Make PostgreSQL accessible from all the cluster. The cluster is in a LAN so we can just expose PostgreSQL to the cluster LAN. In the Postgres configuration file `/etc/postgresql/14/main/pg_hba.conf` add the IP addresses of the nodes that we want to connect to the PostgreSQL server. Under the `# IPv4 local connection:` add the following:
 ```txt
@@ -348,7 +361,11 @@ redis.password=your_password
 6. Verify that the connector works properly by querying the Catalogs inside the Trino server. Entering the `Trino CLI` you can run the `SHOW CATALOGS;` command. Redis and its data should appear there. 
 > After the addition of the Redis connector a Trino server restart might be needed.
 
-## Import TPC-DS Benchmark data 
+## Working with the TPC-DS benchmark suite
+
+- [Set up](#set-up-the-tpc-ds-benchmark-suite)
+- [Generate benchmark data](#generate-benchmark-data)
+- [Import TPC-DS data to databases](#database-initialization-with-tpc-ds-benchmark)
 
 ### Set up the TPC-DS benchmark suite
 
@@ -375,7 +392,7 @@ $ ./dsdgen -scale <size> -dir <save_directory>
 ```
 > Specify the data sample size with the `size` parameter. The amount of data is in GBs.
 
-### Database Initialization with TPC-DS Benchmark
+### Loading TPC-DS data to the databases
 To set up the database schema and associations, the TPC-DS benchmark provides two essential files located in `DSGen-software-code-3.2.0rc1/tools`:
 1. `tpcds.sql`: Defines the schema with table definitions.
 2. `tpcds_ri.sql`: Specifies associations between tables by setting foreign key constraints.
