@@ -29,31 +29,31 @@ TRINO_COMMAND="./../../trino $TRINO_HOST:$TRINO_PORT"
 DATABASES=("postgresql" "cassandra" "redis")
 
 TEST_TABLES=(
-  # "dbgen_version"               # 4 kb
-  # "date_dim"                    # 9.8 mb
-  # "ship_mode"                   # 4 kb
-  # "warehouse"                   # 4 kb
-  # "web_site"                    # 12 kb
-  # "web_page"                    # 16 kb
-  # "income_band"                 # 4 kb
-  # "call_center"                 # 8 kb
+  "dbgen_version"               # 4 kb
+  "date_dim"                    # 9.8 mb
+  "ship_mode"                   # 4 kb
+  "warehouse"                   # 4 kb
+  "web_site"                    # 12 kb
+  "web_page"                    # 16 kb
+  "income_band"                 # 4 kb
+  "call_center"                 # 8 kb
   "reason"                      # 4 kb
-  # "item"                        # 23 mb
-  # "promotion"                   # 56 kb 
-  # "customer_address"            # 22 mb
-  # "customer_demographics"       # 76 mb
-  # "household_demographics"      # 144 kb
-  # "store"                       # 24 kb
-  # "time_dim"                    # 4.8 kb
-  # #"inventory"                  # 1,6 gb
-  # "catalog_page"                # 1.6 mb
-  # "customer"                    # 52 mb
-  # #"web_sales"                  # 1.2 gb
-  # "web_returns"                 # 78 mb
-  # #"store_sales"                # 3 gb
-  # "store_returns"               # 256 mb
-  # #"catalog_sales"              # 2.3 gb
-  # "catalog_returns"             # 168 mb    
+  "item"                        # 23 mb
+  "promotion"                   # 56 kb 
+  "customer_address"            # 22 mb
+  "customer_demographics"       # 76 mb
+  "household_demographics"      # 144 kb
+  "store"                       # 24 kb
+  "time_dim"                    # 4.8 kb
+  #"inventory"                  # 1,6 gb
+  "catalog_page"                # 1.6 mb
+  "customer"                    # 52 mb
+  #"web_sales"                  # 1.2 gb
+  "web_returns"                 # 78 mb
+  #"store_sales"                # 3 gb
+  "store_returns"               # 256 mb
+  #"catalog_sales"              # 2.3 gb
+  "catalog_returns"             # 168 mb    
 )
 
 BASE_QUERIES=(
@@ -81,10 +81,10 @@ done
 
 
 format_duration() {
-  local seconds=$((duration_striped / 1000))
+  local seconds=$(($1 / 1000))
   local minutes=$((seconds / 60))
   local hours=$((minutes / 60))
-  local remaining_milliseconds=$((duration_striped % 1000))
+  local remaining_milliseconds=$(($1 % 1000))
   local remaining_seconds=$((seconds % 60))
   local remaining_minutes=$((minutes % 60))
 
@@ -101,11 +101,8 @@ for bench in {1..10}; do
 
   echo "########## BENCH $bench ##########"
   for ((i=0; i<${#BASE_QUERIES[@]}; i++)); do
-    #for query in "${QUERIES[@]}"; do
-    pk=$(python3 redis_performance.py $table | tee /dev/tty | sed -n '2p')
-    # echo $pk
-
     for table in "${TEST_TABLES[@]}"; do  
+      pk=$(python3 redis_performance.py ${table} --cleanup=false | tee /dev/tty | sed -n '2p')
       # Initialize variables for storing durations
       postgresql_run1_duration=""
       cassandra_run1_duration=""
@@ -115,29 +112,17 @@ for bench in {1..10}; do
       redis_run2_duration=""
 
       BASE_QUERY="${BASE_QUERIES[$i]}"
-      # Call the python script only for the "SELECT * FROM ... WHERE ... " query
-
       QUERY="$BASE_QUERY $table"
 
       if [ $i -eq 2 ]; then
           QUERY="$BASE_QUERY $table WHERE $pk"
-          # array=$(echo "$pk" | tail -n1 | tr -d '[], ')
-          # echo "Array from Python script: $array"
       fi
 
-      # RESULTS_FILE=$RESULTS_DIR/${table}_query_v${i}.txt
-      # #echo $QUERY
-      # echo "" > $RESULTS_FILE
-      # echo "Table: $table" >> $RESULTS_FILE
-      # echo "Query: $QUERY" >> $RESULTS_FILE
-      # echo "" >> $RESULTS_FILE
-
-      FULL_QUERY=""
-      
+      FULL_QUERY=""      
       # Repeat the same queries 2 times so we can see the impact of caching. 
       for run in {1..2}; do 
         echo "### RUN $run ###"
-        echo "### RUN $run ###" >> $RESULTS_FILE
+        #echo "### RUN $run ###" >> $RESULTS_FILE
         for db in "${DATABASES[@]}"; do
           FULL_QUERY="USE $db.tpcds; $QUERY"
           echo "Running '$FULL_QUERY' for $db..."
@@ -152,13 +137,8 @@ for bench in {1..10}; do
           # Extract and format the duration
           duration_striped="${duration:1:-1}"
 
-          formatted_duration=$(format_duration "$duration")
+          formatted_duration=$(format_duration "$duration_striped")
 
-          # echo "Database: $db" >> $RESULTS_FILE
-          # echo "Duration: $formatted_duration" >> $RESULTS_FILE
-          # echo "----------------------------" >> $RESULTS_FILE
-
-          # Store the duration in the appropriate variable based on the run
           case "$run" in
               1)
                   if [ "$db" == "postgresql" ]; then
@@ -183,12 +163,15 @@ for bench in {1..10}; do
           # Update total durations
           case "$db" in
               "postgresql")
+                  echo $((postgresql_total_duration["$table,$i,$run"] + duration_striped))
                   postgresql_total_duration["$table,$i,$run"]=$((postgresql_total_duration["$table,$i,$run"] + duration_striped))
                   ;;
               "cassandra")
+                  echo $((cassandra_total_duration["$table,$i,$run"] + duration_striped))
                   cassandra_total_duration["$table,$i,$run"]=$((cassandra_total_duration["$table,$i,$run"] + duration_striped))
                   ;;
               "redis")
+                  echo $((redis_total_duration["$table,$i,$run"] + duration_striped))
                   redis_total_duration["$table,$i,$run"]=$((redis_total_duration["$table,$i,$run"] + duration_striped))
                   ;;
           esac
@@ -196,9 +179,9 @@ for bench in {1..10}; do
       done
       # Save query and durations to results CSV file
       echo "${table}_v$i,$postgresql_run1_duration,$cassandra_run1_duration,$redis_run1_duration,$postgresql_run2_duration,$cassandra_run2_duration,$redis_run2_duration" >> "$CSV_FILE_BENCH"
-    done
   
-    python3 ../Redis/utils/flush_redis.py
+      python3 ../Redis/utils/flush_redis.py
+    done
   done
 done
 
@@ -206,11 +189,14 @@ done
 for table in "${TEST_TABLES[@]}"; do
     for ((i=0; i<${#BASE_QUERIES[@]}; i++)); do
         for run in {1..2}; do
+            echo $((postgresql_total_duration["$table,$i,$run"]))
             postgresql_avg_duration=$((postgresql_total_duration["$table,$i,$run"] / 10)) 
+            echo $postgresql_avg_duration
             cassandra_avg_duration=$((cassandra_total_duration["$table,$i,$run"] / 10))
             redis_avg_duration=$((redis_total_duration["$table,$i,$run"] / 10))
 
             pg_avg_formatted_dur=$(format_duration "$postgresql_avg_duration")
+            echo $pg_avg_formatted_dur
             cas_avg_formatted_dur=$(format_duration "$cassandra_avg_duration")
             redis_avg_formatted_dur=$(format_duration "$redis_avg_duration")
 
