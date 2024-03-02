@@ -42,34 +42,6 @@ source ../.env
 # List of databases
 DATABASES=("postgresql" "cassandra")
 
-ALL_TABLES=(
-  "date_dim"                    # 9.8 mb
-  "ship_mode"                   # 4 kb
-  "warehouse"                   # 4 kb
-  "web_site"                    # 12 kb
-  "web_page"                    # 16 kb
-  "income_band"                 # 4 kb
-  "call_center"                 # 8 kb
-  "reason"                      # 4 kb
-  "item"                        # 23 mb
-  "promotion"                   # 56 kb 
-  "customer_address"            # 22 mb
-  "customer_demographics"       # 76 mb
-  "household_demographics"      # 144 kb
-  "store"                       # 24 kb
-  "time_dim"                    # 4.8 mb
-  "inventory"                  # 1,6 gb
-  "catalog_page"                # 1.6 mb
-  "customer"                    # 52 mb
-  "web_sales"                  # 1.2 gb
-  "web_returns"                 # 78 mb
-  "store_sales"                # 3 gb
-  "store_returns"               # 256 mb
-  "catalog_sales"              # 2.3 gb
-  "catalog_returns"             # 168 mb   
-  "dbgen_version"               # 4 kb    
-)
-
 TEST_TABLES=(
   "ship_mode"                   # 4 kb
   "warehouse"                   # 4 kb
@@ -83,24 +55,12 @@ TEST_TABLES=(
   "dbgen_version"               # 4 kb  
 )
 
-test_tables_acronyms=(
-    "sm"
-    "w"
-    "w"
-    "web"
-    "wp"
-    "ib"
-    "cc"
-    "r"
-    "p"
-    "s"
-    "dv"
-)
-
 # Directory containing SQL queries
 QUERY_DIR="../../queries"
 
-Queries=(1 5 7 8 9 13 17 19 24 25 26 27 29 34 36 39 40 43 46 47 48 50 53 54 57 59 61 62 63 64 68 73 79 84 85 88 89 90 91 93 96 99)
+# Queries 5, 40 & 17 are not running
+ 
+Queries=(1 7 8 9 13 19 24 25 26 27 29 34 36 39 43 46 47 48 50 53 54 57 59 61 62 63 64 68 73 79 84 85 88 89 90 91 93 96 99)
 
 # Define Trino command with host and port
 TRINO_COMMAND="./../../trino $TRINO_HOST:$TRINO_PORT"
