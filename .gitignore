@@ -3,3 +3,6 @@
 queries/query_results/
 /Docs/*
 !/Docs/report.tex
+!Docs/images
+
+.DS_Store
