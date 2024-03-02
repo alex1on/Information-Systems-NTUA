@@ -1,5 +1,13 @@
 .env
 **/__pycache__/
 queries/query_results/
+queries/query_results_redis
+queries/query_results_redis_backup
+queries/output*
+queries/query_validation.txt
+
+
 /Docs/*
 !/Docs/report.tex
+
+redis_results/

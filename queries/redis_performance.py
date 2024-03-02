@@ -1,5 +1,6 @@
 import sys, os
 import random
+import argparse
 #sys.path.append('../Redis/utils')
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'Redis/'))
 
@@ -7,13 +8,14 @@ from utils.tables import table_names, primary_keys, table_structure, data_types
 from utils.data_loader import load_data, clean_file
 from utils.redis_connection import open_connection, close_connection
 
-def prep_redis_table_benchmark(table):
+def prep_redis_table_benchmark(table, cleanup=True):
     redis_client= open_connection()
 
     # Load the table contents to Redis cache. The file is not deleted as it will be processed later in this function
     load_data(redis_client, True, table, False)
 
-    file_path = "../../tpc_data/" + table + ".dat"
+    #file_path = "../../tpc_data/" + table + ".dat"
+    file_path = "/home/user/Information_systems/tpc_data/" + table + ".dat"
 
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -32,8 +34,8 @@ def prep_redis_table_benchmark(table):
         else:
             pk_values.append("'" + random_table_item[col_index] + "'")
 
-
-    clean_file(file_path)
+    if cleanup:
+        clean_file(file_path)
 
     close_connection(redis_client)
 
@@ -48,7 +50,15 @@ def prep_redis_table_benchmark(table):
 
     return return_stmt
 
-prep_redis_table_benchmark(sys.argv[1])
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Prepare Redis table benchmark.')
+    parser.add_argument('table', type=str, help='Name of the table to prepare benchmark for.')
+    parser.add_argument('--cleanup', type=str, choices=['true', 'false'], default='true', help='Whether to clean up the file after processing (true/false). Default is true.')
+    args = parser.parse_args()
+
+    cleanup = args.cleanup.lower() == 'true'
+    prep_redis_table_benchmark(args.table, cleanup)
 
 
 
