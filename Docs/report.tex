@@ -58,22 +58,22 @@ Trino is an open-source distributed SQL query engine designed to query large dat
 one or more heterogenous data sources. Among others, Trino has the ability to run federated queries that
 query tables in different data sources such as MySQL, PostgreSQL, Cassandra, Kafka, Redis and many more.
 
-Over the last few years, Trino has draught a lot of attention and nowdays it is widely used by many 
+Over the last few years, Trino has draught a lot of attention and nowadays it is widely used by many 
 companies and organizations. Therefore, it is significant to evaluate its performance under different 
 scenarios and circumstances.
 
-In this paper, we benchmark the performnace of Trino across different types of queries, data locations and underlying
+In this paper, we benchmark the performance of Trino across different types of queries, data locations and underlying
 storage technologies. In more detail, we establish a Trino cluster consisting of four nodes, a coordinator and three workers 
 where each of them is equipped with a different storage system: PostgreSQL on worker 1, Cassandra on worker 2 and Redis on worker 3. 
 The diversity among these three database management systems (DBMS) helps us cover three different data models: 
-Relational, Wide-Column and Key-value  provding better results. After, the installation and set up of those three specific stores, we generate and load
-data using the well-known \textcolor{linkblue}{\underline{\href{https://www.tpc.org/tpcds/}{TPC-DS}}} benchmark which is also utlized for query generation.
-The size of the data is large enough so that it won't fit in memory, in the order of several GB \& milions of records and
-the queries are diverse enough including both, simple and complex ones (multiple joins and aggregations).
+Relational, Wide-Column and Key-value providing a more versatile data and query management in our cluster. After, the installation and set up of those three specific stores, we generate and load
+data using the well-known \textcolor{linkblue}{\underline{\href{https://www.tpc.org/tpcds/}{TPC-DS}}} benchmark which is also utilized for query generation.
+The size of the data is large enough so that it won't fit in memory, in the order of several GB (milions of records). 
+The queries imposed to our dataset have a large variety from simple queries (selects) to complex ones (multiple joins and aggregations) while targeting all the dataset tables.
 After generating and loading the data, we pose the generated queries into each of the data sources and we come up with some
 initial measures. Based on those measures we devise different data distribution stategies and we measure the performance
 (query latency, optimizer plan) over different number of workers and different data distribution plans. Our final goal is to
-idneitfy how the distributed execution engine and optimization works under a varying ammount of data, data distributed in
+idneitfy how the distributed execution engine and optimization works under a varying amount of data, data distributed in
 different engines and with queries of varying difficulty. 
 
 This paper is backed by a GitHub repository, that contains scripts and howtos on how to replicate our Trino cluster, generate and load the data and 
@@ -104,13 +104,12 @@ through the following link:
 
 \subsection{Trino}
 
-Trino, formerly known as PrestoDB, is an open-source distributed SQL query engine, build in Java. It is designed to query large ammount of data
+Trino, formerly known as PrestoDB, is an open-source distributed SQL query engine, build in Java. It is designed to query large amount of data
 distributed over one or more heterogeneous data sources, using distributed queries.
 
 It was firstly designed as an alternative to tools that query Hadoop Distributed File System (HDFS) using pipelines of MapReduce jobs such as Hive 
 or Pig. However, Trino has been extended to operate over different kinds of data sources, including traditional relational database such as PostgreSQL 
-and other data sources such as Cassandra. Consequently, Trino has the ability to query data lakes housing open column-oriented data file formats 
-like ORC or Parquet. Moreover, it excels in executing federated queries that span tables in different data sources like MySQL, PostgreSQL, Cassandra, Redis and MongoDB.
+and other data sources such as Cassandra. Moreover, it excels in executing federated queries that span tables in different data sources like MySQL, PostgreSQL, Cassandra, Redis and MongoDB.
 Furthermore, Trino is also deisgned to handle data warehousing and analytics tasks and its functionalitites extend to data analysis, the aggregation of huge
 data sets and the generation of reports.
 
@@ -127,12 +126,12 @@ On the other hand, Trino workers are servers responsible for executing tasks and
 each other. The coordinator is responsible for fetching results from workers and returning the final reuslts to the client. Like coordinator, workers use a REST API 
 with which they communicate to each other.
 
-Accessing many different data sources, querying data and returning results to client in a distributed way, is a very challenging task. For this purpose Trino utilizes many
-different components the most significant and critical of which are connectors, catalogs, schema and table.
+Accessing diverse data sources, executing queries, and delivering results to clients in a distributed manner poses a formidable challenge. Trino addresses this challenge through 
+the incorporation of various components, with connectors, catalogs, schema, and tables standing out as the most significant and critical among them.
 
 Connectors play a crucial role as they are plugins that enable communication with different data sources and storage systems.
-Trino supports various connectors for traditional SQL databases like MySQL, PostgreSQL, Oracle, for NoSQL databases liek MongoDB and Cassandra and for modern data lakes like 
-Hive, Iceberge and Delta Lake. As a result, users can query data from a large variety of different data sources.
+Trino supports various connectors for traditional SQL databases like MySQL, PostgreSQL, Oracle, for NoSQL databases like MongoDB and Cassandra and for modern data lakes like 
+Hive, Iceberg and Delta Lake. As a result, users can query data from a large variety of different data sources.
 
 Schemas are a way to organize tables. Together, a catalog and schema define a set of tables that can be queried. When accessing Hive or a relational database such as MySQL with Trino, 
 a schema translates to the same concept in the target database. 
@@ -142,6 +141,8 @@ A table is a set of unordered rows, which are organized into named columns with 
 Catalogs in Trino, are logical containers that hold metadata about the available sources, including schemas, tables and connectors.
 Trino can connect to multiple catalogs, each representing a distinct set of data sources and their associated metadata. 
 Users can switch between catalogs in their queries and access data from different environments without the need to change their SQL statements.
+
+By combining the components mentioned before, Trino gains the ability to represent table structures and query data in SQL, from data sources that do not support the concept of tables or even SQL (such as Redis).
 
 Summarizing the above, the figure below, illustrates Trino's cluster architecture:
 \begin{figure}[h]
@@ -169,7 +170,7 @@ Some key features that make PostgreSQL very interesting and powerful, are the fo
     It includes features like join optimization, subquery optimization, and parallel query execution.
 \end{itemize}
 
-These features make PostgreSQL a very powerfull and attractive relational DBMS and that's the reason we selected it for our cluster.
+These features make PostgreSQL a very powerful and attractive relational DBMS and that's the reason we selected it for our cluster.
 
 \subsection{Cassandra}
 
@@ -177,15 +178,11 @@ Cassandra is an open - source, distributed, wide-column store, NoSQL database ma
 providing high availability with no single point of failure. Some of its main features are listed below:
 
 \begin{itemize}
-    \item \textbf{Distirbuted:} Every node in the cluster has the same role and there is no master. Also there is no single point of failure and data is distributed across the cluster, so 
+    \item \textbf{Distributed:} Every node in the cluster has the same role and there is no master. Also there is no single point of failure and data is distributed across the cluster, so 
     each node is responsible for different data.
     \item \textbf{Replication - Fault Tolerance:} Cassandra supports replication across multiple datacenters, providing lower latency for users. Data is automatically replicated to multiple nodes the number
     of which can be easily configured.
     \item \textbf{Scalability:} Cassandra scales horizontally and is designed in such a way, that allows linear increase in write and read throughput by adding new machines in the cluster.
-    \item \textbf{Eventual consistency:} Cassandra is classified as an AP system, meaning that availability and partition tolerance are generaly considered to be more important than consistency. However, 
-    Cassandra manages eventual consistency of reads, upserts and deletes through Tombstones.
-    \item \textbf{Cassandra Query Language:} Cassandra introduced the Cassandra Query Language (CQL), which is similar to SQL and therefore it can execute complex queries efficiently.
-    \item
 \end{itemize}
 
 These features, in addition to its efficiency and easy scalability contribute to Cassandra being a very powerful and widely used NoSQL database and makes it a perfect database to experiment on. 
@@ -194,7 +191,8 @@ In our project, we also examine Cassandra's scalability so we consider two versi
 \subsection{Redis}
 
 Redis (Remote Dictionary Server) is an open-source in-memory storage, used as a distributed, in-memory key-value database, cache and message broker, with optional durability. Because it holds all
-data in memoery and because of its design, Redis offer low-latency read and writes, making it particurarly suitable for cases that require a cache. Redis one of the most popular database systems and
+data in memory and due to its design, Redis offers low-latency reads and writes, making it particularly suitable for cases that require a cache. Additionally,Redis provides a notable speedup to disk
+read/write operations and is commonly employed as a cache to a non-volatile database. Moreover, Redis is one of the most popular database systems and
 it is frequently used in combination with other databases in order to leverage the strengths of each database for specific use cases. Some key features are listed below:
 
 \begin{itemize}
@@ -230,7 +228,7 @@ In our project, TPC-DS is utilized for data and query generation.
 In this section we outline the steps that were followed in order to set up our cluster and replicate our working
 environment. We describe the installation and configuration of Trino, the setup of the data sources 
 on each node, and the process of generating and loading the dataset using the TPC-DS Benchmark. 
-More in-depth details, instructions and commands can be found in our GitHub repository.
+More in-depth details, instructions and commands can be found in our \textcolor{linkblue}{\underline{\href{https://github.com/alex1on/Information-Systems-NTUA}{GitHub Repository}}}.
 \subsection{Cluster and Virtual Machines}
 
 For our project we used four virtual machines (1 coordinator and 3 workers) that were provided by \textcolor{linkblue}{\underline{\href{https://okeanos-knossos.grnet.gr/home/}{~okeanos-knossos}}}.
@@ -247,8 +245,8 @@ virtual machines and virtual networks. Each virtual machine has the same followi
 \subsection{Networking}
 
 For networking we were given one public IPv4 address, which was attached to our master node which also behaves as the Trino coordinator.
-In order to allow the communication between the cluster nodes, we set up a local area network (LAN: 192.168.0.0/23). In more details,
-192.168.0.2 was assigned to the coordinator, 192.168.1.1 to worker 1 (PostgreSQL), 192.168.1.2 to worker 2 (Cassandra) and 192.168.1.3 to worker 3 (Redis)
+In order to allow the communication between the cluster nodes, we set up a local area network (LAN: 192.168.1.0/24). In more details,
+192.168.1.4 was assigned to the coordinator, 192.168.1.1 to worker 1 (PostgreSQL), 192.168.1.2 to worker 2 (Cassandra) and 192.168.1.3 to worker 3 (Redis)
 as shown in the figure below:
 
 \begin{figure}[h]
@@ -278,7 +276,7 @@ First of all, we downloaded the latest Trino release. Next, we created the etc d
 
 \begin{itemize}
     \item \textbf{Node properties:} The node properties file, \texttt{etc/node.properties}, contains configuration specific to each node such as the name of the environment and the unique identifier.
-    \item \textbf{JVM config:} The JVM config file, \texttt{etc/jvm.config}, contains a list of command line options user for launching the Java Virtual Machine. 
+    \item \textbf{JVM config:} The JVM config file, \texttt{etc/jvm.config}, contains a list of command line options used for launching the Java Virtual Machine. 
     \item \textbf{Config properties:} The config properties file, \texttt{etc/config.properties}, contains the configuration for the Trino server. It provides information such as the port of the HTTP server and the type of node (coordinator, worker or both). 
     \item \textbf{Log levels:} The optional log levels file, texttt{etc/log.properties}, allows setting the desired log level (INFO, DEBUG etc).
 \end{itemize}
@@ -294,7 +292,7 @@ In order to be able to query the data located in those databases, we downloaded 
 Following the instructions from the original sites, we install and set up the databases below:
 
 \begin{itemize}
-    \item \textbf{PostgreSQL:} We installed PostgreSQL 14 on worker 1 (Dowload PostgreSQL \textcolor{linkblue}{\underline{\href{https://www.postgresql.org/download/}{here}}})
+    \item \textbf{PostgreSQL:} We installed PostgreSQL 14 on worker 1 (Download PostgreSQL \textcolor{linkblue}{\underline{\href{https://www.postgresql.org/download/}{here}}})
     \item \textbf{Apache Cassandra:} We installed Cassandra 5.0 on worker 2. We followed the \textcolor{linkblue}{\underline{\href{https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html}{Debian packages installation guide}}}
     \item \textbf{Redis:} We installed Redis on worker 3 (\textcolor{linkblue}{\underline{\href{https://redis.io/docs/install/install-redis/install-redis-on-linux/}{Install Redis on Linux}}})
 \end{itemize}
@@ -321,10 +319,12 @@ We also configured \texttt{etc/catalog/cassandra.properties} accordingly. Later,
 
 \subsubsection{Redis}
 
-For Redis, we modified \texttt{/etc/redis/redis.conf} and made Redis listen to worker's 3 IP address by setting bind property that IP address. As previous, we adjusted \texttt{etc/catalog/redis.properties} file.
-We should mention here, that Redis doesn't support schema and table definitions. Trino overcomes this issue by forcing the user, to define the schema for each table, using specific table schema definition (JSON in our case)
-files. Trino can access these files using their location which is declared in \texttt{redis.properties}.
 
+In configuring Redis, we made modifications to the \texttt{/etc/redis/redis.conf} file, specifying the worker's 3 IP address in the \texttt{bind} property 
+to ensure Redis listens to that specific IP. Similar adjustments were made to the \texttt{etc/catalog/redis.properties} file as mentioned earlier.
+
+It's important to note that Redis lacks support for schema and table definitions. To address this limitation, Trino tackles the issue by requiring users to 
+define the schema for each table using specific table schema definition files (in our case, JSON files). Trino can access these files based on their location, which is declared in the \texttt{redis.properties} file.
 
 \subsection{TPC-DS Benchmark installation and data \& query generation}
 
@@ -333,10 +333,12 @@ utilizing the Makefile that is included in the zip file. Next, we used dsdgen ex
 
 \subsection{Data loading}
 
-In order to load the data into the different data sources, we created proper database schemas in PostgreSQL and Cassandra (in Redis we utilized table schema definition files as mentioned earlier) through 
+In order to load the data into the different data sources, we created proper database schemas in PostgreSQL and Cassandra through 
 tpcds.sql file that creates the tables and tpcds\_ri.sql that specifies foreign key constraints. Since Cassandra and Redis don\'t support foreign key constraints, they were applied only to PostgreSQL. Our 
 study is focusing only on querying already existing data and there is no intention to insert, delete or update those data. Since data obbey the constraints in PostgreSQL, we can be sure that the same holds
 for Cassandra and Redis.
+
+In Redis we utilized table schema definition files as mentioned earlier. For that purpose, we created \texttt{create\_trino\_json\_table\_definitions.sh} script which is responsible for generating those JSON files.
 
 After creating the schema and tables, we created scripts in order to load the data into the different databases. For PostgreSQL and Cassandra we took advantage of the COPY command that both, SQL and CQL provide.
 For Redis we used python modules and loaded the data using hashes.
@@ -344,8 +346,8 @@ For Redis we used python modules and loaded the data using hashes.
 We note that since Redis is an in-memory database and certain tables contain millions of records, not all records can fit in memory and it wouldn't be efficient to overload RAM. Consequently, the insertion process
 focuses on a subset of the data for practical considerations.
 
-In conclusion, we also note,that for our initial experiments, we loaded the complete dataset into both Postgres and Cassandra. Following the initial measurements and theoretical insights, we came up with some early coclusions 
-which helped up devise a better data distributiob strategy as explained later.
+In conclusion, we also note,that for our initial experiments, we loaded the complete dataset into both Postgres and Cassandra. Following the initial measurements and theoretical insights, we came up with some early conclusions 
+which helped up devise a better data distribution strategy as explained later.
 
 \section{Data Distribution Strategy}
 \section{Process and Methodology}
