@@ -9,7 +9,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Data directory path
-datadir="../tpc_data" # change it accordingly
+datadir="../../tpc_data" # change it accordingly
 
 # Function to copy data into PostgreSQL table
 copy_data() {

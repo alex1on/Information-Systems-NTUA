@@ -13,7 +13,7 @@ SCALE="8"
 SEED="0121130900"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BASEDIR="$SCRIPT_DIR/.."
+BASEDIR="$SCRIPT_DIR/../.."
 TEMPLATEDIR="$BASEDIR/DSGen-software-code-3.2.0rc1/query_templates"
 TOOLSDIR="$BASEDIR/DSGen-software-code-3.2.0rc1/tools"
 OUTDIR="$BASEDIR/queries"

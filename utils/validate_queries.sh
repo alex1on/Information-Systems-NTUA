@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Description:
-# This script validates SQL queries using Trino's "EXPLAIN (TYPE VALIDATE) <query>" option. 
-# It checks the format and correctness of queries by executing them in a Trino environment.
+#   This script validates SQL queries using Trino's "EXPLAIN (TYPE VALIDATE) <query>" option. 
+#   It checks the format and correctness of queries by executing them in a Trino environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -15,10 +15,10 @@ if [ -z "$TRINO_HOST" ] || [ -z "$TRINO_PORT" ]; then
 fi
 
 # Directory containing SQL queries
-QUERY_DIR="../../queries"
+QUERY_DIR="../queries"
 
 # Define Trino command with host and port
-TRINO_COMMAND="./../../trino $TRINO_HOST:$TRINO_PORT"
+TRINO_COMMAND="./../trino $TRINO_HOST:$TRINO_PORT"
 
 # Output file for query validation results
 OUTPUT_FILE="query_validation.txt"
