@@ -1,4 +1,5 @@
 .env
+**/*.log
 **/__pycache__/
 queries/query_results/
 queries/query_results_redis

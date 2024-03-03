@@ -58,6 +58,8 @@ TEST_TABLES=(
 # Directory containing SQL queries
 QUERY_DIR="../../queries"
 
+REDIS_DIR="../Redis"
+
 # Queries 5, 40 & 17 are not running
  
 Queries=(1 7 8 9 13 19 24 25 26 27 29 34 36 39 43 46 47 48 50 53 54 57 59 61 62 63 64 68 73 79 84 85 88 89 90 91 93 96 99)
@@ -76,10 +78,10 @@ CSV_FILE="$RESULTS_DIR/query_execution_redis_test_results_$datetime.csv"
 echo "query,postgresql_run1,cassandra_run1,postgresql_run2,cassandra_run2" > "$CSV_FILE"
 
 # Flush redis
-python3 ../Redis/utils/flush_redis.py
+python3 $REDIS_DIR/utils/flush_redis.py
 
 for table in "${TEST_TABLES[@]}"; do
-    python3 ../Redis/load_data_redis.py ${table} --cleanup=false --batch_processing=true
+    ./${REDIS_DIR}/load_data_redis.sh ${table} --cleanup=false --batch_processing=true
 done
 
 for query in "${Queries[@]}"; do

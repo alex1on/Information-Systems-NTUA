@@ -1,6 +1,6 @@
 import argparse
-from utils.redis_connection import open_connection, close_connection
-from utils.data_loader import load_data
+from redis_connection import open_connection, close_connection
+from load_data_redis_helper import load_data
 
 def prep_redis_table_benchmark(table, cleanup=True, batch_processing=True):
     # Connect to Redis
