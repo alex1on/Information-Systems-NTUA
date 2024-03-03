@@ -15,13 +15,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source ../.env
 
+REDIS_DIR="../Databases/Redis"
+
 # Create or clear the results directory
 RESULTS_DIR="query_results_redis"
 mkdir -p "$RESULTS_DIR"
 
 datetime=$(date +"%Y%m%d_%H%M")
 
-CSV_FILE="$RESULTS_DIR/query_execution_results_avg_$datetime.csv"
+CSV_FILE="$RESULTS_DIR/redis_queries_bench_avg_$datetime.csv"
 echo "query,run,postgresql_avg,cassandra_avg,redis_avg" > "$CSV_FILE"
 
 # Define Trino command with host and port
@@ -98,13 +100,13 @@ format_duration() {
 # Change script so that each query is run for all the tables and not for each table to be run all queries
 # So we can measure the cache impact on the results of the previous tests.
 for bench in {1..10}; do
-  CSV_FILE_BENCH="$RESULTS_DIR/query_execution_results_bench${bench}_$datetime.csv"
+  CSV_FILE_BENCH="$RESULTS_DIR/redis_queries_bench${bench}_$datetime.csv"
   echo "query,postgresql_run1,cassandra_run1,redis_run1,postgresql_run2,cassandra_run2,redis_run2" > "$CSV_FILE_BENCH"
 
   echo "########## BENCH $bench ##########"
   for ((i=0; i<${#BASE_QUERIES[@]}; i++)); do
     for table in "${TEST_TABLES[@]}"; do  
-      pk=$(python3 redis_performance.py ${table} --cleanup=false | tee /dev/tty | sed -n '2p')
+      pk=$(python3 $REDIS_DIR/utils/prep_bench_table.py ${table} --cleanup=false | tee /dev/tty | sed -n '2p')
       # Initialize variables for storing durations
       postgresql_run1_duration=""
       cassandra_run1_duration=""
@@ -182,7 +184,7 @@ for bench in {1..10}; do
       # Save query and durations to results CSV file
       echo "${table}_v$i,$postgresql_run1_duration,$cassandra_run1_duration,$redis_run1_duration,$postgresql_run2_duration,$cassandra_run2_duration,$redis_run2_duration" >> "$CSV_FILE_BENCH"
   
-      python3 ../Redis/utils/flush_redis.py
+      python3 ../Databases/Redis/utils/flush_redis.py
     done
   done
 done

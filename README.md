@@ -447,7 +447,7 @@ The schema creation and data loading involve the following files:
 ##### Data loading:
 For loading data into Redis, the following modules and scripts are utilized in conjunction with `Redis/utils/tables.py`:
 - `Redis/utils/redis_connection.py`: Establishes a connection with Redis using information from a `.env` file.
-- `Redis/utils/data_loader.py`: A module responsible for loading data into Redis utilizing hashes.
+- `Redis/utils/load_data_redis_helper.py`: A module responsible for loading data into Redis utilizing hashes.
 - `Redis/load_data_redis.py`: Employes the above modules in order to properly load data into Redis.
 
 Upon executing the following commands:

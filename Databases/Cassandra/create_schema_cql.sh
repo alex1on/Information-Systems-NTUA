@@ -3,7 +3,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Read PostgreSQL parameters from .env file
-source ../.env
+source ../../.env
 
 schema_file="$SCRIPT_DIR/schema.cql"
 

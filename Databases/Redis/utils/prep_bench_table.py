@@ -1,12 +1,12 @@
 import sys, os
 import random
 import argparse
-#sys.path.append('../Redis/utils')
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'Redis/'))
+#sys.path.append('../Databases/Redis/utils')
+#sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'Redis/'))
 
-from utils.tables import table_names, primary_keys, table_structure, data_types
-from utils.data_loader import load_data, clean_file
-from utils.redis_connection import open_connection, close_connection
+from tables import table_names, primary_keys, table_structure, data_types
+from load_data_redis_helper import load_data, clean_file
+from redis_connection import open_connection, close_connection
 
 def prep_redis_table_benchmark(table, cleanup=True):
     redis_client= open_connection()

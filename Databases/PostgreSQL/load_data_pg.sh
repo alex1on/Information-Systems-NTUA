@@ -18,7 +18,7 @@ database="trino"
 schema="tpcds"  
 
 # Data directory path
-datadir="../../tpc_data"
+datadir="../../../tpc_data"
 
 # List of tables ordered based on foreign key dependencies
 tables=(

@@ -1,4 +1,4 @@
-from utils.tables import table_names, primary_keys, table_structure
+from tables import table_names, primary_keys, table_structure
 import redis
 import os 
 
@@ -43,7 +43,7 @@ def load_table(redis_client, index, batch_processing, cleanup):
     file_path = "../../tpc_data/" + table_name + ".dat"
     remote_file = file_prefix + table_name + file_suffix
 
-    os.system('scp "%s:%s" "%s"' % (remote_host, remote_file, file_path))
+    #os.system('scp "%s:%s" "%s"' % (remote_host, remote_file, file_path))
 
     # Read file in chunks
     if batch_processing:

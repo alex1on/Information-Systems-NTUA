@@ -58,6 +58,8 @@ TEST_TABLES=(
 # Directory containing SQL queries
 QUERY_DIR="../../queries"
 
+REDIS_DIR="../Databases/Redis"
+
 # Queries 5, 40 & 17 are not running
  
 Queries=(1 7 8 9 13 19 24 25 26 27 29 34 36 39 43 46 47 48 50 53 54 57 59 61 62 63 64 68 73 79 84 85 88 89 90 91 93 96 99)
@@ -72,14 +74,27 @@ RESULTS_DIR="query_results"
 datetime=$(date +"%Y%m%d_%H%M")
 
 # Create CSV file for results
-CSV_FILE="$RESULTS_DIR/query_execution_redis_test_results_$datetime.csv"
+CSV_FILE="$RESULTS_DIR/tpcds_queries_redis_cache_$datetime.csv"
 echo "query,postgresql_run1,cassandra_run1,postgresql_run2,cassandra_run2" > "$CSV_FILE"
 
+
+format_duration() {
+  local seconds=$(($1 / 1000))
+  local minutes=$((seconds / 60))
+  local hours=$((minutes / 60))
+  local remaining_milliseconds=$(($1 % 1000))
+  local remaining_seconds=$((seconds % 60))
+  local remaining_minutes=$((minutes % 60))
+
+  # Following format: HH:mm:ss.xxx
+  printf "%02d:%02d:%02d.%03d" "$hours" "$remaining_minutes" "$remaining_seconds" "$remaining_milliseconds"
+}
+
 # Flush redis
-python3 ../Redis/utils/flush_redis.py
+python3 $REDIS_DIR/utils/flush_redis.py
 
 for table in "${TEST_TABLES[@]}"; do
-    python3 ../Redis/load_data_redis.py ${table} --cleanup=false --batch_processing=true
+    ./${REDIS_DIR}/load_data_redis.sh ${table} --cleanup=false --batch_processing=true
 done
 
 for query in "${Queries[@]}"; do
@@ -124,15 +139,8 @@ for query in "${Queries[@]}"; do
 
             # Extract and format the duration
             duration_striped="${duration:1:-1}"
-            seconds=$((duration_striped / 1000))
-            minutes=$((seconds / 60))
-            hours=$((minutes / 60))
-            remaining_milliseconds=$((duration_striped % 1000))
-            remaining_seconds=$((seconds % 60))
-            remaining_minutes=$((minutes % 60))
 
-            # Save to output file with the following format: HH:mm:ss.xxx
-            formatted_duration=$(printf "%02d:%02d:%02d.%03d" "$hours" "$remaining_minutes" "$remaining_seconds" "$remaining_milliseconds")
+            formatted_duration=$(format_duration "$duration_striped")
 
             # Store the duration in the appropriate variable based on the run
             case "$i" in

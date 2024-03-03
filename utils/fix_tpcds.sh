@@ -1,10 +1,19 @@
 #! /bin/bash
 
+# Description:
+#   Script that fixes all issues regarding the installation of the TPC-DS benchmark suite.
+#   The documented issues that fixes are the following:
+#       - Add the missing _END substitution
+#       - Be able to generate all 99 queries with ascending numbering name.
+#       - Be able to also add variation numbers in case multiple iterations of the same query type is #         needed.
+#   
+#   Note: Add the coresponding function you wish to run to the end of the script. 
+
 SCALE="8"
 SEED="0121130900"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BASEDIR="$SCRIPT_DIR/.."
+BASEDIR="$SCRIPT_DIR/../.."
 TEMPLATEDIR="$BASEDIR/DSGen-software-code-3.2.0rc1/query_templates"
 TOOLSDIR="$BASEDIR/DSGen-software-code-3.2.0rc1/tools"
 OUTDIR="$BASEDIR/queries"
