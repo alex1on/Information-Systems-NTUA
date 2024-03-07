@@ -5,7 +5,7 @@ Benchmarks/query_results/
 Benchmarks/query_results_redis
 Benchmarks/query_results_redis_backup
 Benchmarks/output*
-Benchmarks/query_validation.txt
+utils/query_validation.txt
 deprecated/    
 
 
