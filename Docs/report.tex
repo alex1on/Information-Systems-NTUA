@@ -13,9 +13,9 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Conference Paper Title*\\
-{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
-should not be used}
+\title{Distributed Execution of SQL Queries over Trino \\
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+% should not be used}
 \thanks{Identify applicable funding agency here. If none, delete this.}
 }
 
@@ -35,13 +35,27 @@ el19435@mail.ntua.gr}
 \maketitle
 
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+
+% The amount of data in our world has been exploding and analyzing large data set --so called big data-- has
+% become a key basis of competition and productivity growth.
+The exponential growth of big data in recent years, has necessitated innovative solutions for efficient
+data processing. Trino, formerly known as PrestoDB, emerges as a pivotal tool designed for distributed SQL queries
+across large and diverse data sets.
+
+In this study, we assess the performance of Trino in various scenarios, such as different data distribution strategies, 
+worker configurations, and query complexities. For this project, we utilize three prominent databases—PostgreSQL, 
+Cassandra, and Redis—as integral components of our evaluation framework and execute queries against them. 
+Our methodology involves systematically posing queries under different scenarios, adjusting data distribution strategies 
+and the number of workers. We measure performance metrics, including query latency and optimizer plans, 
+offering valuable insights into how Trino behaves under diverse conditions.
+
+This research contributes to understanding Trino's efficiency and optimization strategies. 
+The findings provide practical recommendations for optimizing data distribution strategies.
+
 \end{abstract}
 
 \begin{IEEEkeywords}
-component, formatting, style, styling, insert
+Big Data, Trino, Distributed SQL Queries
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -62,7 +76,7 @@ Over the last few years, Trino has draught a lot of attention and nowadays it is
 companies and organizations. Therefore, it is significant to evaluate its performance under different 
 scenarios and circumstances.
 
-In this paper, we benchmark the performance of Trino across different types of queries, data locations and underlying
+In this research, we benchmark the performance of Trino across different types of queries, data locations and underlying
 storage technologies. In more detail, we establish a Trino cluster consisting of four nodes, a coordinator and three workers 
 where each of them is equipped with a different storage system: PostgreSQL on worker 1, Cassandra on worker 2 and Redis on worker 3. 
 The diversity among these three database management systems (DBMS) helps us cover three different data models: 
@@ -71,12 +85,12 @@ data using the well-known \textcolor{linkblue}{\underline{\href{https://www.tpc.
 The size of the data is large enough so that it won't fit in memory, in the order of several GB (milions of records). 
 The queries imposed to our dataset have a large variety from simple queries (selects) to complex ones (multiple joins and aggregations) while targeting all the dataset tables.
 After generating and loading the data, we pose the generated queries into each of the data sources and we come up with some
-initial measures. Based on those measures we devise different data distribution stategies and we measure the performance
+initial measures. Based on those measures we devise different data distribution strategies and we measure the performance
 (query latency, optimizer plan) over different number of workers and different data distribution plans. Our final goal is to
-idneitfy how the distributed execution engine and optimization works under a varying amount of data, data distributed in
+identify how the distributed execution engine and optimization works under a varying amount of data, data distributed in
 different engines and with queries of varying difficulty. 
 
-This paper is backed by a GitHub repository, that contains scripts and howtos on how to replicate our Trino cluster, generate and load the data and 
+This project is backed by a GitHub repository, that contains scripts and howtos on how to replicate our Trino cluster, generate and load the data and 
 generate and perform the queries. Additionally, the repository includes the results of our measurements, along with a detailed analysis to provide a 
 thorough understanding of the outcomes.
 
@@ -104,15 +118,17 @@ through the following link:
 
 \subsection{Trino}
 
+\subsubsection{\textbf{\underline{Overview}}}
 Trino, formerly known as PrestoDB, is an open-source distributed SQL query engine, build in Java. It is designed to query large amount of data
 distributed over one or more heterogeneous data sources, using distributed queries.
 
 It was firstly designed as an alternative to tools that query Hadoop Distributed File System (HDFS) using pipelines of MapReduce jobs such as Hive 
 or Pig. However, Trino has been extended to operate over different kinds of data sources, including traditional relational database such as PostgreSQL 
 and other data sources such as Cassandra. Moreover, it excels in executing federated queries that span tables in different data sources like MySQL, PostgreSQL, Cassandra, Redis and MongoDB.
-Furthermore, Trino is also deisgned to handle data warehousing and analytics tasks and its functionalitites extend to data analysis, the aggregation of huge
+Furthermore, Trino is also designed to handle data warehousing and analytics tasks and its functionalitites extend to data analysis, the aggregation of huge
 data sets and the generation of reports.
 
+\subsubsection{\textbf{\underline{Nodes}}}
 As a distributed query engine, Trino processes data in parallel across multiple servers and it runs on a cluster of servers that contains two types of nodes, 
 a coordinator and a worker. Users interact with the coordinator using their SQL query tool, and the coordinator collaborates with workers to access connected
 data sources. The configuration for this access is stored in catalogs, where parameters like host, port and passwords are defined. Acting as the orchestrator,
@@ -126,6 +142,7 @@ On the other hand, Trino workers are servers responsible for executing tasks and
 each other. The coordinator is responsible for fetching results from workers and returning the final reuslts to the client. Like coordinator, workers use a REST API 
 with which they communicate to each other.
 
+\subsubsection{\textbf{\underline{Components}}}
 Accessing diverse data sources, executing queries, and delivering results to clients in a distributed manner poses a formidable challenge. Trino addresses this challenge through 
 the incorporation of various components, with connectors, catalogs, schema, and tables standing out as the most significant and critical among them.
 
@@ -144,12 +161,49 @@ Users can switch between catalogs in their queries and access data from differen
 
 By combining the components mentioned before, Trino gains the ability to represent table structures and query data in SQL, from data sources that do not support the concept of tables or even SQL (such as Redis).
 
-Summarizing the above, the figure below, illustrates Trino's cluster architecture:
+\subsubsection{\textbf{\underline{Architecture}}}
+
+Summarizing the above, a Trino cluster consists of a single node and one or more worker nodes. The coordinator is responsible for admitting, parsing, planning and
+optimizing queries as well as query orchestration. Worker nodes are responsible for query processing. Figure 1 illustartes a simplified view of Trino architechture:
 \begin{figure}[h]
     \includegraphics[width=0.5\textwidth]{images/trino-architecture.png}
-    \caption{Trino Cluster Architechture}
+    \caption{Trino Architechture}
     \label{fig:trino_architechture}
 \end{figure}
+
+
+The client sends an HTTP request containing a SQL statement to the coordinator. The coordinator processes the request by parsing and analyzing the SQL text, 
+creating and optimizing distributed execution plan. The coordinator distributes this plan to workers, starts execution of tasks and then begins to enumerate splits,
+which are sections of a larger data set. Splits are assigned to the tasks responsible for reading this data.
+
+
+\subsubsection{\textbf{\underline{Query Execution Model}}}
+
+In Trino's query execution model, SQL statements are executed by transforming them into queries, which are then distributed across the cluster.
+A statement in Trino refers to the textual representation of SQL, while a query refers to the configuration and components instantiated to execute that statement.
+
+When Trino parses a statement, it converts it into a query and creates a distributed query plan, realized as interconnected stages 
+running on Trino workers. The execution process involves stages, tasks, splits, connectors, and other components working together 
+to produce a result.
+
+\begin{itemize}
+    \item \textbf{Stage:} Trino breaks up query execution into a hierarchy of stages, forming a tree-like structure. 
+    Stages represent different sections of the distributed query plan and are responsible for aggregating outputs from other stages. 
+    The coordinator models the plan using stages, but stages themselves do not run on Trino workers.
+    \item \textbf{Task:} Stages are implemented as a series of tasks distributed over Trino workers. 
+    Tasks execute in parallel and operate on splits, which are sections of a larger dataset. Tasks are crucial in deconstructing the 
+    distributed query plan, and they have inputs and outputs. The execution of a stage involves a network of Trino workers working on tasks.
+    \item \textbf{Split:} Tasks operate on splits, which are sections of the dataset. Splits are obtained from connectors, and during query 
+    scheduling, the coordinator queries a connector for a list of available splits. The coordinator tracks the machines running tasks and the 
+    splits being processed.
+    \item \textbf{Driver:} Tasks contain one or more parallel drivers, acting as the lowest level of parallelism. Drivers process data and combine 
+    operators to produce output, which is then aggregated and delivered to another task in a different stage.
+    \item \textbf{Operator:} Operators consume, transform, and produce data. Examples include a table scan fetching data from a 
+    connector, and a filter operator producing a subset of data by applying a predicate. Operators are building blocks for executing the stages 
+    of a query.
+    \item \textbf{Exchange:} Exchanges transfer data between Trino nodes for different stages. Tasks produce data into an output buffer and consume 
+    data from other tasks using an exchange client. Exchanges facilitate the flow of data between stages in a distributed query plan.
+\end{itemize}
 
 \subsection{PostgreSQL}
 
@@ -350,8 +404,8 @@ focuses on a subset of the data for practical considerations.
 In conclusion, we also note,that for our initial experiments, we loaded the complete dataset into both Postgres and Cassandra. Following the initial measurements and theoretical insights, we came up with some early conclusions 
 which helped up devise a better data distribution strategy as explained later.
 
-\section{Data Distribution Strategy}
 \section{Process and Methodology}
+\section{Data Distribution Strategy}
 \section{Results and Analysis}
 \section{Conclusion}
 \section{References}
