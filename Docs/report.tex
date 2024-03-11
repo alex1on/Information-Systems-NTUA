@@ -224,7 +224,7 @@ Some key features that make PostgreSQL very interesting and powerful, are the fo
     It includes features like join optimization, subquery optimization, and parallel query execution.
 \end{itemize}
 
-These features make PostgreSQL a very powerful and attractive relational DBMS and that's the reason we selected it for our cluster.
+These features make PostgreSQL the go to selection relational DBMS making it the most suitable selection for a relational database in our cluster.
 
 \subsection{Cassandra}
 
@@ -365,7 +365,8 @@ For Cassandra, we adjusted parameters like authenticator, authorizer, seeds, lis
 
 \begin{itemize}
     \item \textbf{authenticator:} class\_name : org.apache.cassandra.auth.PasswordAuthenticator
-    \item \textbf{authorizer:} CassandraAuthorizer
+    \item \textbf{authenticator:}
+        class\_name: org.apache.cassandra.auth.PasswordAuthenticator
     \item \textbf{rpc\_address, listen\_address and seeds:} 192.168.1.2 (IP address of worker2 to whom Cassandra is installed)
 \end{itemize}
 
