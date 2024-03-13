@@ -2,7 +2,7 @@ import argparse
 from redis_connection import open_connection, close_connection
 from load_data_redis_helper import load_data
 
-def prep_redis_table_benchmark(table, cleanup=True, batch_processing=True):
+def load_table_benchmark(table, cleanup=True, batch_processing=True):
     # Connect to Redis
     redis_client = open_connection()
 
@@ -21,6 +21,6 @@ if __name__ == "__main__":
 
     cleanup = args.cleanup.lower() == 'true'
     batch_processing = args.batch_processing.lower() == 'true'
-    prep_redis_table_benchmark(args.table, cleanup, batch_processing)
+    load_table_benchmark(args.table, cleanup, batch_processing)
 
     
