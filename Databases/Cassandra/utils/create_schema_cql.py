@@ -1,5 +1,4 @@
 from cass_connection import open_connection, close_connection
-import os
 
 def create_keyspace_schema():
     cluster, session = open_connection()
