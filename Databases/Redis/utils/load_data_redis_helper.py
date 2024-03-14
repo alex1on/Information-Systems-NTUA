@@ -29,7 +29,7 @@ def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
 
     return hashes
 
-def load_table(redis_client, index, batch_processing, cleanup):
+def load_table(redis_client, index, batch_processing, cleanup=False):
     remote_host = 'okeanos-data'
     file_prefix = "~/Information_systems/tpc_data/"
     file_suffix = ".dat"
@@ -40,7 +40,7 @@ def load_table(redis_client, index, batch_processing, cleanup):
     table_columns = table_structure[index].split(', ')
 
     # Define data file path
-    file_path = "../../tpc_data/" + table_name + ".dat"
+    file_path = "../../../tpc_data/" + table_name + ".dat"
     remote_file = file_prefix + table_name + file_suffix
 
     #os.system('scp "%s:%s" "%s"' % (remote_host, remote_file, file_path))
@@ -76,7 +76,7 @@ def load_table(redis_client, index, batch_processing, cleanup):
         clean_file(file_path)
 
 
-def load_data(redis_client, batch_processing=True, table=None, cleanup=True):
+def load_data(redis_client, batch_processing=True, table=None, cleanup=False):
     if table:
         table_index = table_names.index(table)
         load_table(redis_client, table_index, batch_processing, cleanup)
@@ -85,4 +85,4 @@ def load_data(redis_client, batch_processing=True, table=None, cleanup=True):
             load_table(redis_client, i, batch_processing, cleanup)
 
 def clean_file(file_path):
-    os.system('rm "%s"' % (file_path))
+    os.remove(file_path)
