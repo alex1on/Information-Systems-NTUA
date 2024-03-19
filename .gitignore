@@ -1,15 +1,22 @@
 .env
 **/*.log
 **/__pycache__/
+
+# Benchmarks
 Benchmarks/query_results/
 Benchmarks/query_results_redis
 Benchmarks/query_results_redis_backup
 Benchmarks/output*
+
+# Databases
+Databases/PostgreSQL/bash_scripts/
+
 utils/query_validation.txt
 deprecated/    
 
-
+# Docs
 /Docs/*
 !/Docs/report.tex
 
+# Results
 redis_results/
