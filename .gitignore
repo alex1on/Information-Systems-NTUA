@@ -17,6 +17,7 @@ deprecated/
 # Docs
 /Docs/*
 !/Docs/report.tex
+!/Docs/projects.pdf
 
 # Results
 redis_results/
