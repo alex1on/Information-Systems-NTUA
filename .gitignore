@@ -18,6 +18,9 @@ deprecated/
 /Docs/*
 !/Docs/report.tex
 !/Docs/projects.pdf
+!Docs/images
 
 # Results
 redis_results/
+
+.DS_Store
