@@ -10,15 +10,19 @@ def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
         values = [value.strip() for value in line.split('|')]
         #values = line.strip('|').split('|')
 
-        # Extract primary key values
-        primary_key_values = [values[table_columns.index(pk)] for pk in primary_key]
-
         # Create Redis hash key
         hash_key = f"tpcds.{table_name}.{':'.join([f'{pk}:{values[table_columns.index(pk)]}' for pk in primary_key])}"
 
         # Create Redis hash values
         # For each hash value we choose "columns" that are not in the hash key and its values are not empty. 
         # We need the last part to properly show NULL values when the redis data is imported to trino.
+
+        # TODO: This line does not do what the above comment describes.
+        #       For example we have this table:
+        #       dv_version, dv_create_date, dv_create_time, dv_cmdline_args
+        #       3.2.0|2024-02-24|22:07:58|-scale 1 -dir /home/user/tpc_data 
+        #   Which has the dv_version as a primary id. Obviously from the condition this is included. 
+        #   This is also true for NULL columns.        
         hash_values = {column: values[table_columns.index(column)] for column in table_columns if column not in primary_key or values[table_columns.index(column)] != ''}
 
         # Remove empty values
@@ -30,9 +34,9 @@ def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
     return hashes
 
 def load_table(redis_client, index, batch_processing, cleanup=False):
-    remote_host = 'okeanos-data'
-    file_prefix = "~/Information_systems/tpc_data/"
-    file_suffix = ".dat"
+    # remote_host = 'okeanos-data'
+    # file_prefix = "~/Information_systems/tpc_data/"
+    # file_suffix = ".dat"
     
     # Get table info
     table_name = table_names[index]
@@ -41,7 +45,7 @@ def load_table(redis_client, index, batch_processing, cleanup=False):
 
     # Define data file path
     file_path = "../../../tpc_data/" + table_name + ".dat"
-    remote_file = file_prefix + table_name + file_suffix
+    # remote_file = file_prefix + table_name + file_suffix
 
     #os.system('scp "%s:%s" "%s"' % (remote_host, remote_file, file_path))
 
