@@ -1,4 +1,5 @@
-from tables import table_names, primary_keys, table_structure, data_types
+import os
+from tables import table_names, primary_keys, table_structure, data_types, mappings
 import json
 
 # It creates the json schema for the given table 
@@ -6,7 +7,26 @@ def create_json_schema(table_name, primary_key, table_columns, col_data_types):
 
     key_fields = []
     value_fields = []
-
+    
+    # Find the correct mapping for the given table_name
+    table_mapping = next((m for m in mappings if m[1] == table_name), None)
+    
+    if table_mapping:
+        ranges = table_mapping[0]
+        
+        for i, pk in enumerate(primary_key):
+            # If there are multiple primary keys, ensure to get the corresponding range
+            range_mapping = f"{ranges[i][0]}:{ranges[i][1]}"
+            
+            key_fields.append({
+                "name": pk,
+                "mapping": range_mapping,
+                "type": "VARCHAR"
+            })
+    else:
+        print(f"Error: No mapping found for table '{table_name}'")
+        return None
+    
     for column in table_columns:
         data_type = col_data_types[table_columns.index(column)]
 
@@ -15,13 +35,6 @@ def create_json_schema(table_name, primary_key, table_columns, col_data_types):
             "mapping": column,
             "type": data_type
         })
-
-    # if len(key_fields) == 0:
-    key_fields.append({
-        "name": "primary_id",
-        "type": "VARCHAR(64)",
-        "hidden": True
-    })
 
     json_schema = {
         "tableName": table_name,
@@ -45,14 +58,19 @@ def write_json_schema():
         primary_key = primary_keys[i].split(', ')
         table_columns = table_structure[i].split(', ')
         col_data_types = data_types[i].split(', ')
-        print(table_name)
 
         json_schema = create_json_schema(table_name, primary_key, table_columns, col_data_types)
 
-        file_path = "/home/user/schemas/" + table_name + "_schema.json"
+        if json_schema:
+            
+            # Create the directory if it doesn't exist
+            dir_path = "/home/user/schemas/"
+            os.makedirs(dir_path, exist_ok=True)
+            
+            file_path = os.path.join(dir_path, f"{table_name}_schema.json")
 
-        with open(file_path, 'w') as json_file:
-            json.dump(json_schema, json_file, indent=4)
+            with open(file_path, 'w') as json_file:
+                json.dump(json_schema, json_file, indent=4)
 
 
 write_json_schema()           

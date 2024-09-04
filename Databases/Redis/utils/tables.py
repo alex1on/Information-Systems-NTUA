@@ -112,3 +112,52 @@ data_types = [
   "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE", # cs
   "INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE, DOUBLE" # cr
 ]
+
+mappings = [
+  ([(25, 32)], "date_dim"),                    # date_dim                  --> tpcds.date_dim.d_date_sk:2488070
+  ([(32, 34)], "ship_mode"),                   # ship_mode                 --> tpcds.ship_mode.sm_ship_mode_sk:20
+  ([(32, 33)], "warehouse"),                   # warehouse                 --> tpcds.warehouse.w_warehouse_sk:8
+  ([(27, 29)], "web_site"),                    # web_site                  --> tpcds.web_site.web_site_sk:38
+  ([(30, 33)], "web_page"),                    # web_page                  --> tpcds.web_page.wp_web_page_sk:168
+  ([(36, 38)], "income_band"),                 # income_band               --> tpcds.income_band.ib_income_band_sk:20
+  ([(36, 38)], "call_center"),                 # call_center               --> tpcds.call_center.cc_call_center_sk:20
+  ([(25, 27)], "reason"),                      # reason                    --> tpcds.reason.r_reason_sk:42
+  ([(21, 26)], "item"),                        # item                      --> tpcds.item.i_item_sk:82000
+  ([(27, 30)], "promotion"),                   # promotion                 --> tpcds.promotion.p_promo_sk:455
+  ([(37, 43)], "customer_address"),            # customer_address          --> tpcds.customer_address.ca_address_sk:205000
+  ([(39, 46)], "customer_demographics"),       # customer_demographics     --> tpcds.customer_demographics.cd_demo_sk:1920800
+  ([(40, 44)], "household_demographics"),      # household_demographics    --> tpcds.household_demographics.hd_demo_sk:7200
+  ([(23, 25)], "store"),                       # store                     --> tpcds.store.s_store_sk:82
+  ([(25, 30)], "time_dim"),                    # time_dim                  --> tpcds.time_dim.t_time_sk:86399
+  ([(38, 43)], "catalog_page"),                # catalog_page              --> tpcds.catalog_page.cp_catalog_page_sk:11718
+  ([(29, 35)], "customer"),                    # customer                  --> tpcds.customer.c_customer_sk:411000
+  ([(29, 34), (51, 56)], "web_returns"),       # web_returns               --> tpcds.web_returns.wr_item_sk:12391:wr_order_number:18213
+  ([(31, 36), (54, 61)], "store_returns"),     # store_returns             --> tpcds.store_returns.sr_item_sk:82000:sr_ticket_number:1919999
+  ([(33, 38), (55, 62)], "catalog_returns")    # catalog_returns           --> tpcds.catalog_returns.cr_item_sk:82000:cr_order_number:1279999
+]
+
+pk_lengths = [
+  ("d_date_sk", 7),           # date_dim  
+  ("sm_ship_mode_sk", 2),     # ship_mode               
+  ("w_warehouse_sk", 1),      # warehouse               
+  ("web_site_sk", 2),         # web_site                
+  ("wp_web_page_sk", 3),      # web_page                
+  ("ib_income_band_sk", 2),   # income_band             
+  ("cc_call_center_sk", 2),   # call_center             
+  ("r_reason_sk", 2),         # reason                  
+  ("i_item_sk", 5),           # item                    
+  ("p_promo_sk", 3),          # promotion               
+  ("ca_address_sk", 6),       # customer_address        
+  ("cd_demo_sk", 7),          # customer_demographics   
+  ("hd_demo_sk", 4),          # household_demographics  
+  ("s_store_sk", 2),          # store                   
+  ("t_time_sk", 5),           # time_dim                
+  ("cp_catalog_page_sk", 5),  # catalog_page            
+  ("c_customer_sk", 6),       # customer                
+  ("wr_item_sk", 5),          # web_returns            
+  ("wr_order_number", 5),     # web_returns 
+  ("sr_item_sk", 5),          # store_returns           
+  ("sr_ticket_number", 7),    # store_returns           
+  ("cr_item_sk", 5),          # catalog_returns        
+  ("cr_order_number", 7)      # catalog_returns         
+]

@@ -1,17 +1,17 @@
-from tables import table_names, primary_keys, table_structure
+from tables import table_names, primary_keys, table_structure, pk_lengths
 import redis
 import os 
 
 def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
-    hashes = {}
+    hashes = {}    
 
     for line in lines:
         # Seperate column values. (Also clean the \n from the end of each line)
         values = [value.strip() for value in line.split('|')]
         #values = line.strip('|').split('|')
-
+        
         # Create Redis hash key
-        hash_key = f"tpcds.{table_name}.{':'.join([f'{pk}:{values[table_columns.index(pk)]}' for pk in primary_key])}"
+        hash_key = f"tpcds.{table_name}.{':'.join([f'{pk}:{values[table_columns.index(pk)].zfill(find_length(primary_key))}' for pk in primary_key])}"
 
         # Create Redis hash values
         # For each hash value we choose "columns" that are not in the hash key and its values are not empty. 
@@ -90,3 +90,13 @@ def load_data(redis_client, batch_processing=True, table=None, cleanup=False):
 
 def clean_file(file_path):
     os.remove(file_path)
+    
+def find_length(pk_name):
+    # Create a dictionary for quick lookup of primary key lengths
+    pk_length_dict = dict(pk_lengths)
+
+    # Check if the primary key is in the dictionary
+    if pk_name not in pk_length_dict:
+        raise ValueError(f"Primary key length for '{pk_name}' is not defined.")
+
+    return pk_length_dict[pk_name]
