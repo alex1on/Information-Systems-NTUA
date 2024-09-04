@@ -5,6 +5,8 @@ import json
 # It creates the json schema for the given table 
 def create_json_schema(table_name, primary_key, table_columns, col_data_types):
 
+
+
     key_fields = []
     value_fields = []
     
@@ -28,6 +30,9 @@ def create_json_schema(table_name, primary_key, table_columns, col_data_types):
         return None
     
     for column in table_columns:
+        if column in primary_key:
+            continue
+
         data_type = col_data_types[table_columns.index(column)]
 
         value_fields.append({
