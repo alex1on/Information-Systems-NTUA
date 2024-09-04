@@ -1,5 +1,4 @@
-from tables import table_names, primary_keys, table_structure, pk_lengths
-import redis
+from tables import table_names, primary_keys, table_structure, mappings
 import os 
 
 def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
@@ -11,7 +10,7 @@ def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
         #values = line.strip('|').split('|')
         
         # Create Redis hash key
-        hash_key = f"tpcds.{table_name}.{':'.join([f'{pk}:{values[table_columns.index(pk)].zfill(find_length(primary_key))}' for pk in primary_key])}"
+        hash_key = f"tpcds.{table_name}.{':'.join([f'{pk}:{values[table_columns.index(pk)].zfill(find_length(table_name, i))}' for i, pk in enumerate(primary_key)])}"
 
         # Create Redis hash values
         # For each hash value we choose "columns" that are not in the hash key and its values are not empty. 
@@ -22,8 +21,12 @@ def prepare_redis_hashes(table_name, primary_key, table_columns, lines):
         #       dv_version, dv_create_date, dv_create_time, dv_cmdline_args
         #       3.2.0|2024-02-24|22:07:58|-scale 1 -dir /home/user/tpc_data 
         #   Which has the dv_version as a primary id. Obviously from the condition this is included. 
-        #   This is also true for NULL columns.        
-        hash_values = {column: values[table_columns.index(column)] for column in table_columns if column not in primary_key or values[table_columns.index(column)] != ''}
+        #   This is also true for NULL columns.
+        # 
+        # UPDATED 04/09: Changed the key and table representation in Redis tables.
+        #                Now primary keys are not represented in a duplicate way.
+        #                So again the "and" is reverted.
+        hash_values = {column: values[table_columns.index(column)] for column in table_columns if column not in primary_key and values[table_columns.index(column)] != ''}
 
         # Remove empty values
         hash_values = {key: value for key, value in hash_values.items() if value != ''}
@@ -60,7 +63,6 @@ def load_table(redis_client, index, batch_processing, cleanup=False):
                 # Prepare the Redis hashes for the current chunk
                 hashes = prepare_redis_hashes(table_name, primary_key, table_columns, lines)
 
-
                 # Load hashes in Redis
                 for h in hashes:
                     redis_client.hset(h, mapping=hashes[h])
@@ -91,12 +93,22 @@ def load_data(redis_client, batch_processing=True, table=None, cleanup=False):
 def clean_file(file_path):
     os.remove(file_path)
     
-def find_length(pk_name):
+def find_length(table_name, pk_index):
     # Create a dictionary for quick lookup of primary key lengths
-    pk_length_dict = dict(pk_lengths)
+    pk_mapping_dict = {name: lengths for lengths, name in mappings}
 
     # Check if the primary key is in the dictionary
-    if pk_name not in pk_length_dict:
-        raise ValueError(f"Primary key length for '{pk_name}' is not defined.")
+    if table_name not in pk_mapping_dict:
+        raise ValueError(f"Primary key length for '{table_name}' is not defined.")
 
-    return pk_length_dict[pk_name]
+    # Fetch the list of length tuples for the given table_name
+    length_tuples = pk_mapping_dict[table_name]
+
+    # Check if pk_index is within the range of length tuples
+    if pk_index >= len(length_tuples) or pk_index < 0:
+        raise IndexError(f"Primary key index {pk_index} out of range for table '{table_name}'.")
+
+    # Retrieve the tuple for the specific primary key index
+    start, end = length_tuples[pk_index]
+
+    return end - start

@@ -135,29 +135,3 @@ mappings = [
   ([(31, 36), (54, 61)], "store_returns"),     # store_returns             --> tpcds.store_returns.sr_item_sk:82000:sr_ticket_number:1919999
   ([(33, 38), (55, 62)], "catalog_returns")    # catalog_returns           --> tpcds.catalog_returns.cr_item_sk:82000:cr_order_number:1279999
 ]
-
-pk_lengths = [
-  ("d_date_sk", 7),           # date_dim  
-  ("sm_ship_mode_sk", 2),     # ship_mode               
-  ("w_warehouse_sk", 1),      # warehouse               
-  ("web_site_sk", 2),         # web_site                
-  ("wp_web_page_sk", 3),      # web_page                
-  ("ib_income_band_sk", 2),   # income_band             
-  ("cc_call_center_sk", 2),   # call_center             
-  ("r_reason_sk", 2),         # reason                  
-  ("i_item_sk", 5),           # item                    
-  ("p_promo_sk", 3),          # promotion               
-  ("ca_address_sk", 6),       # customer_address        
-  ("cd_demo_sk", 7),          # customer_demographics   
-  ("hd_demo_sk", 4),          # household_demographics  
-  ("s_store_sk", 2),          # store                   
-  ("t_time_sk", 5),           # time_dim                
-  ("cp_catalog_page_sk", 5),  # catalog_page            
-  ("c_customer_sk", 6),       # customer                
-  ("wr_item_sk", 5),          # web_returns            
-  ("wr_order_number", 5),     # web_returns 
-  ("sr_item_sk", 5),          # store_returns           
-  ("sr_ticket_number", 7),    # store_returns           
-  ("cr_item_sk", 5),          # catalog_returns        
-  ("cr_order_number", 7)      # catalog_returns         
-]
