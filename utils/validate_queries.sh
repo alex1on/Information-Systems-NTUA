@@ -6,7 +6,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source ../.env
+source .env
 
 # Check if required environment variables are set
 if [ -z "$TRINO_HOST" ] || [ -z "$TRINO_PORT" ]; then

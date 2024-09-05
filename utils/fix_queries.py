@@ -3,18 +3,45 @@ import re
 
 def convert_to_trino_sql(query):
     """
-    Convert SQL query to Trino SQL dialect by replacing date arithmetic with INTERVAL keyword.
+    Convert SQL query to Trino SQL dialect by replacing date arithmetic with INTERVAL keyword
+    and casting date literals to DATE.
     """
-    # Replace date addition using '+' with INTERVAL in Trino's syntax
-    pattern = r"cast\('(\d{4}-\d{2}-\d{2})' as date\)\s*\+\s*(\d+)\s*days?"
+    # Enhanced regex pattern to match both addition and subtraction with different date formats
+    pattern_arithmetic = r"cast\s*\(\s*'(\d{4}-\d{1,2}-\d{1,2})'\s*as\s*date\s*\)\s*([\+\-])\s*(\d+)\s*days?"
     
-    def replacement(match):
+    # Regex pattern to match date literals that need casting to DATE,
+    # avoiding dates already inside a CAST expression
+    pattern_literal = r"(?<!cast\()'(\d{4}-\d{1,2}-\d{1,2})'(?!\s*as\s*date)"
+
+    # Regex pattern to replace 'c_last_review_date_sk' with 'c_last_review_date'
+    pattern_replace_column = r"\bc_last_review_date_sk\b"
+
+    # Specific regex pattern to handle date arithmetic without casting to convert to INTERVAL
+    pattern_date_arithmetic = r"(\bd_date\b)\s*\+\s*(\d+)\b"
+
+    # Replacement for date arithmetic to use INTERVAL in Trino's syntax
+    def replacement_arithmetic(match):
         date_str = match.group(1)
-        days = match.group(2)
+        days = match.group(3)
         return f"CAST('{date_str}' AS DATE) + INTERVAL '{days}' DAY"
+
+    # Replacement for date literals to cast them to DATE
+    def replacement_literal(match):
+        date_str = match.group(1)
+        return f"CAST('{date_str}' AS DATE)"
     
-    # Apply the replacement
-    converted_query = re.sub(pattern, replacement, query, flags=re.IGNORECASE)
+    # Replacement for specific date arithmetic to use INTERVAL
+    def replacement_date_arithmetic(match):
+        date_column = match.group(1)
+        days = match.group(2)
+        return f"{date_column} + INTERVAL '{days}' DAY"
+    
+    # Apply the replacements
+    converted_query = re.sub(pattern_arithmetic, replacement_arithmetic, query, flags=re.IGNORECASE)
+    converted_query = re.sub(pattern_literal, replacement_literal, converted_query, flags=re.IGNORECASE)
+    converted_query = re.sub(pattern_replace_column, 'c_last_review_date', converted_query, flags=re.IGNORECASE)
+    converted_query = re.sub(pattern_date_arithmetic, replacement_date_arithmetic, converted_query, flags=re.IGNORECASE)
+    
     
     return converted_query
 
@@ -47,6 +74,6 @@ def process_sql_files(input_dir, output_dir):
 
 # Example usage
 input_directory = '../../queries/'   # Replace with your input directory path
-output_directory = '../../queries_updated/' # Replace with your output directory path
+output_directory = '../../queries/' # Replace with your output directory path
 
 process_sql_files(input_directory, output_directory)
