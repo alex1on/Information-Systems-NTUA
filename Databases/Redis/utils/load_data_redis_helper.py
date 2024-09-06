@@ -78,6 +78,8 @@ def load_table(redis_client, index, batch_processing, cleanup=False):
             for h in hashes:
                 redis_client.hset(h, mapping=hashes[h])
 
+    print(f"Table: {table_name} successfully loaded to Redis.")
+
     if cleanup:
         clean_file(file_path)
 
