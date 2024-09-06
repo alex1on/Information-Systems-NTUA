@@ -131,6 +131,7 @@ mappings = [
   ([(25, 30)], "time_dim"),                    # time_dim                  --> tpcds.time_dim.t_time_sk:86399
   ([(38, 43)], "catalog_page"),                # catalog_page              --> tpcds.catalog_page.cp_catalog_page_sk:11718
   ([(29, 35)], "customer"),                    # customer                  --> tpcds.customer.c_customer_sk:411000
+  ([(27, 32), (49, 56)], "web_sales"),         # web_sales                 --> tpcds.web_sales.ws_item_sk:82000:ws_order_number:1919999:
   ([(29, 34), (51, 56)], "web_returns"),       # web_returns               --> tpcds.web_returns.wr_item_sk:12391:wr_order_number:18213
   ([(31, 36), (54, 61)], "store_returns"),     # store_returns             --> tpcds.store_returns.sr_item_sk:82000:sr_ticket_number:1919999
   ([(33, 38), (55, 62)], "catalog_returns")    # catalog_returns           --> tpcds.catalog_returns.cr_item_sk:82000:cr_order_number:1279999
