@@ -35,11 +35,18 @@ def create_json_schema(table_name, primary_key, table_columns, col_data_types):
 
         data_type = col_data_types[table_columns.index(column)]
 
-        value_fields.append({
+        # Create the base field dictionary
+        field = {
             "name": column,
             "mapping": column,
             "type": data_type
-        })
+        }
+
+        # Add dataFormat if the data type is DATE
+        if data_type == "DATE":
+            field["dataFormat"] = "iso8601"
+
+        value_fields.append(field)
 
     json_schema = {
         "tableName": table_name,
