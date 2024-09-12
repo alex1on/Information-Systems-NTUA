@@ -11,7 +11,7 @@ def time_to_seconds(time_str):
 os.makedirs('figures', exist_ok=True)
 
 # Load CSV data
-data = pd.read_csv('../query_results_merged/queries_first_bench_10092024.csv')
+data = pd.read_csv('../query_results_merged/no_dist_bench_10092024.csv')
 
 # Queries for each group
 group1_queries = ['query002', 'query004', 'query005', 'query011', 'query014', 'query023', 'query033', 'query051', 'query066', 'query072', 'query075', 'query082', 'query083', 'query097']
@@ -52,11 +52,10 @@ def calculate_avg(df, queries, include_redis=False):
 
 # Function to plot and save the bar plot with value labels
 def plot_bar_with_labels(avg_times, labels, title, filename, include_redis=False):
-    # Set colors for bars
-    colors = ['cyan', 'magenta', 'green']
+    plt.style.use('ggplot')
     
     # Create a wider figure to avoid overlap when Redis is included
-    fig, ax = plt.subplots(figsize=(10, 6)) if include_redis else plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(10, 7)) if include_redis else plt.subplots(figsize=(8, 6))
     
     # Labels for x-axis (PostgreSQL, Cassandra, Redis if included)
     x_labels = ['PostgreSQL', 'Cassandra']
@@ -74,15 +73,15 @@ def plot_bar_with_labels(avg_times, labels, title, filename, include_redis=False
     x_pos_combined = [i + bar_width for i in x]
 
     # Plot bars
-    ax.bar(x_pos_run1, avg_times[:num_dbs], width=bar_width, color=colors[0], label='Run 1')  # Run 1 values
-    ax.bar(x_pos_run2, avg_times[num_dbs:num_dbs * 2], width=bar_width, color=colors[1], label='Run 2')  # Run 2 values
-    ax.bar(x_pos_combined, avg_times[num_dbs * 2:num_dbs * 3], width=bar_width, color=colors[2], label='Combined Avg')  # Combined Avg values
+    ax.bar(x_pos_run1, avg_times[:num_dbs], width=bar_width, color='#1f77b4', label='Run 1')  # Run 1 values
+    ax.bar(x_pos_run2, avg_times[num_dbs:num_dbs * 2], width=bar_width, color='#ff7f0e', label='Run 2')  # Run 2 values
+    ax.bar(x_pos_combined, avg_times[num_dbs * 2:num_dbs * 3], width=bar_width, color='#2ca02c', label='Combined Avg')  # Combined Avg values
 
     # Set labels and title
-    ax.set_ylabel('Time (seconds)')
-    ax.set_title(title)
+    ax.set_ylabel('Time (seconds)', fontsize=14, fontname='DejaVu Serif')
+    ax.set_title(title, fontsize=16, fontname='DejaVu Serif')
     ax.set_xticks([i for i in x])
-    ax.set_xticklabels(x_labels)
+    ax.set_xticklabels(x_labels, fontsize=12, fontname='DejaVu Serif')
 
     # Reduce the font size for the values to avoid overlap
     font_size = 10 if include_redis else 12
@@ -98,6 +97,9 @@ def plot_bar_with_labels(avg_times, labels, title, filename, include_redis=False
 
     # Add a legend
     ax.legend()
+
+    # Add gridlines for better readability
+    ax.grid(True, which='both', axis='y', linestyle='--', linewidth=0.7, color='gray', alpha=0.7)
 
     # Save the figure
     plt.tight_layout()
