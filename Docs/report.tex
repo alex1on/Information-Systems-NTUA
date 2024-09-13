@@ -526,44 +526,46 @@ The TPC-DS also provides a query suite of 100 queries which we used to benchmark
 \begin{itemize}
 	\item \textbf{Reporting Queries:} Queries that answer pre-defined questions.
 	\item \textbf{Ad hoc Queries:}  Dynamic queries - they answer immediate and specific business questions.
-	\item \textbf{Iterative OLAP Queries:}  Queries that discorver new trends.
-	\item \textbf{Data Mining Queries:}  Queries that sift through large data, typically joins and aggregations
+	\item \textbf{Iterative OLAP Queries:}  Queries that discover new trends.
+	\item \textbf{Data Mining Queries:}  Queries that sift through large data, typically joins and aggregations.
 \end{itemize}
 
 \subsection{Data Distribution Strategy}
 
-\subsubsection{No data distribution}
+\subsubsection{No Data Distribution Applied}
 
 Initially, we measured the performance without any data distribution to get a base system performance value. We note here that we did not opt to test the Redis performance on the full data set due to the RAM limitations (\ref{sec:cluster-and-virtual-machines}) of the virtual machines used in our test system. We chose only to add the web sales and returns fact tables with all the accompanied dimension tables to compare the query run time on queries consisting those (or part of those) tables.
 
-Due to the limitations of Redis and the large variety of queries TPC-DS provides we chose to select only a part of them and group them in the following groups:
+Due to the limitations of Redis and the large variety of queries the benchmark provides we chose to select only a part of them and group them as follows:
 
 \begin{itemize}
-	\item \textbf{Group 1:} Queries that involve multiple fact tables (e.g., catalog sales and store sales). The actual queries we used in this group are the following: 6, 13, 18, 27, 39, 40, 50, 84, 88, 91, 99.
-	\item \textbf{Group 2:} Queries that involve a single fact table. The actual queries we used in this group are the following: 2, 4, 5, 11, 14, 23, 25, 33, 51, 66, 72, 75, 82, 83, 97.
+	\item \textbf{Group 1:} Queries that involve multiple fact tables (e.g., catalog sales and store sales). The actual queries we used in this group are the following: 2, 4, 5, 11, 14, 23, 25, 33, 51, 66, 72, 75, 82, 83, 97.
+	\item \textbf{Group 2:} Queries that involve a single fact table. The actual queries we used in this group are the following: 6, 13, 18, 27, 39, 40, 50, 84, 88, 91, 99.
 	\item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis). The actual queries we used in this group are the following: 30, 62, 85, 90.
 \end{itemize}
 
 The full comparison results between PostgreSQL, Cassandra and Redis on the same query group are presented in Section \ref{sec:no-data-distribution}
 
-\subsubsection{Distribution based on fact tables ER}
+\subsubsection{Entity-Relationship (ER) Fact Table Distribution with Replicated Dimensions}
 
 The performance measurements from the first test with no data distribution present (\ref{sec:no-data-distribution}) highlighted a clear performance disparity between PostgreSQL, Cassandra and Redis. PostgreSQL was faster in most queries while Redis was significally slower than both of them which was expected due to the poor optimization of Redis on large datasets (add reference). Cassandra while trailing back comparatively to PostgreSQL in most cases, it was faster in some queries while significally slower in some outliers.  %TODO: (insert type of queries that was faster). 
 
 Running the base benchmark provided us with a better understanding on each database's performance on different queries resulting in a clearer view for our following distribution strategies. The first distribution strategy we tested is one that partitions the data based on the ER of the fact tables.
 The principles that the strategy complies with are the following:
 \begin{itemize}
-	\item \textbf{} Fact tables from the same channel are located in the same database (e.g. store sales and store returns)
-	\item \textbf{} Load databases based on the first test result (e.g. larger tables on more performant databases)
-	\item \textbf{} All dimension tables that accompany a fact table are also located in the same database as the fact table (e.g. inventory is located in PostgreSQL, warehouse, date\_dim and item are also in PostgreSQL)
-	\item \textbf{} If a dimension table is associated with multiple tables that are located in different databases the dimension table is saved in both databases (e.g. date\_dim is associated with all the fact tables so we insert it in all 3 databases)
+	\item \textbf{} Fact tables from the same channel are located in the same database (e.g. store sales and store returns).
+	\item \textbf{} Load databases based on the first test result (e.g. larger tables on more performant databases).
+	\item \textbf{} All dimension tables that accompany a fact table are also located in the same database as the fact table (e.g. inventory is located in PostgreSQL, warehouse, date\_dim and item are also in PostgreSQL).
+	\item \textbf{} If a dimension table is associated with multiple tables that are located in different databases the dimension table is saved in both databases (e.g. date\_dim is associated with all the fact tables so we insert it in all 3 databases).
 \end{itemize}
+
+We elected the above as our first experiment for two key reasons. First, we aimed to equally partition data throughout the three databases while considering the results of the base test, meaning PostgreSQL would have the higher load while Redis the lowest. Secondly, we opted to replicate any dimension tables that are shared in multiple ERs. Since every fact table is joined with its respective dimension tables we stored every dimension tables wherever was needed in order to maximize data locality. 
 
 \section{Results and Analysis}
 
 In this section we are presenting the results of our experiments that measure the performance of Trino in different settings regarding the data distribution across workers and the configuration of the cluster.
 
-\subsection{Base System Benchmark - No data distribution}
+\subsection{Base System Benchmark - No data distribution applied}
 \label{sec:no-data-distribution}
 
 As aforementioned, in this first experiment our goal is to establish a base benchmark score between the three databases (PostgreSQL, Cassandra and Redis) while executing the same query in each database from the Trino CLI.
@@ -572,12 +574,12 @@ In Figures 10 to 12 we showcase the performance of each database in each query g
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group1.png}
+	\includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro_alternative/group1.png}
 	\caption{PostgreSQL vs Cassandra}
 	\label{fig:psql-cass-group1}
 \end{figure}
 
-From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) we multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino (add reference here).
+From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) with multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino (add reference here).
 
 \begin{figure}[h]
 	\centering
@@ -586,7 +588,7 @@ From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on avera
 	\label{fig:psql-cass-group2}
 \end{figure}
 
-In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query hashing and dynamic filtering (reference required) compared to Cassandra and Trino.
+In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query caching and dynamic filtering (reference required) compared to Cassandra and Trino.
 
 \begin{figure}[h]
 	\centering
@@ -595,9 +597,9 @@ In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on qu
 	\label{fig:store_sales_er_diagram}
 \end{figure}
 
-Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra. This performance penantly is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all its records and Trino performs any required filtering on all the initial dataset.
+Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra. This performance penalty is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all of its records and Trino performs any required filtering on all the initial dataset.
 
-To sum up, our first test showed a clear ranking between the 3 databases, with PostgreSQL performing cosiderably better than Cassandra with Redis being a distant third.
+To sum up, our first test showed a clear ranking between the 3 databases, with PostgreSQL performing considerably better than Cassandra with Redis being a distant third.
 
 \subsection{Distribution based on fact tables ER}
 \label{sec:distribution-based-on-fact-tables-er}
@@ -755,34 +757,6 @@ with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization
 quantities and units. For example, write ``Temperature (K)'', not
 ``Temperature/K''.
 
-\section*{Acknowledgment}
-
-The preferred spelling of the word ``acknowledgment'' in America is without
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B.
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor
-acknowledgments in the unnumbered footnote on the first page.
-
-\section*{References}
-
-Please number citations consecutively within brackets \cite{b1}. The
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
-
-Number footnotes separately in superscripts. Place the actual footnote at
-the bottom of the column in which it was cited. Do not put footnotes in the
-abstract or reference list. Use letters for table footnotes.
-
-Unless there are six authors or more give all authors' names; do not use
-``et al.''. Papers that have not been published, even if they have been
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers
-that have been accepted for publication should be cited as ``in press'' \cite{b5}.
-Capitalize only the first word in a paper title, except for proper nouns and
-element symbols.
-
-For papers published in translation journals, please give the English
-citation first, followed by the original foreign-language citation \cite{b6}.
-
 \begin{thebibliography}{00}
 	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
 	\bibitem{b2} Z. Luo et al., "From Batch Processing to Real Time Analytics: Running Presto® at Scale," 2022 IEEE 38th International Conference on Data Engineering (ICDE), Kuala Lumpur, Malaysia, 2022, pp. 1598-1609
@@ -798,8 +772,5 @@ citation first, followed by the original foreign-language citation \cite{b6}.
 	\bibitem{b12} ~okeanos-knossos. [Online]. \href{https://okeanos-knossos.grnet.gr/home/}{https://okeanos-knossos.grnet.gr/home/}
 	% \bibitem{b7}
 \end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
 
 \end{document}
