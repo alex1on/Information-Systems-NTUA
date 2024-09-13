@@ -15,46 +15,46 @@
 \begin{document}
 
 \title{Distributed Execution of SQL Queries over Trino \\
-    % {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
-    % should not be used}
-    \thanks{Identify applicable funding agency here. If none, delete this.}
+	% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+	% should not be used}
+	\thanks{Identify applicable funding agency here. If none, delete this.}
 }
 
 \author{\IEEEauthorblockN{Alexandros Ionitsa}
-    \IEEEauthorblockA{\textit{Dept. of Electrical \& Computer Engineering} \\
-        \textit{National Technical University of Athens}\\
-        Athens, Greece \\
-        el19193@mail.ntua.gr}
-    \and
-    \IEEEauthorblockN{Emmanouil Emmanouilidis}
-    \IEEEauthorblockA{\textit{Dept. of Electrical \& Computer Engineering} \\
-        \textit{National Technical University of Athens}\\
-        Athens, Greece \\
-        el19435@mail.ntua.gr}
+	\IEEEauthorblockA{\textit{Dept. of Electrical \& Computer Engineering} \\
+		\textit{National Technical University of Athens}\\
+		Athens, Greece \\
+		el19193@mail.ntua.gr}
+	\and
+	\IEEEauthorblockN{Emmanouil Emmanouilidis}
+	\IEEEauthorblockA{\textit{Dept. of Electrical \& Computer Engineering} \\
+		\textit{National Technical University of Athens}\\
+		Athens, Greece \\
+		el19435@mail.ntua.gr}
 }
 
 \maketitle
 
 \begin{abstract}
 
-    The explosion of data in our world has made analyzing large datasets—commonly known as big data—a
-    crucial factor for competition and productivity growth. This exponential growth has necessitated
-    innovative solutions for efficient data processing. Trino, formerly known as PrestoDB \cite{b1}, \cite{b2}, emerges as
-    a pivotal tool designed for distributed SQL queries across large and diverse data sets. In this
-    study, we assess the performance of Trino in various scenarios, such as different data distribution
-    strategies,  worker configurations, and query complexities. For this project, we utilize three
-    prominent databases—PostgreSQL, Cassandra, and Redis—as integral components of our evaluation
-    framework and execute queries against them. Our methodology involves systematically posing queries
-    under different scenarios, adjusting data distribution strategies and the number of workers. We
-    measure performance metrics, including query latency and optimizer plans, offering valuable insights
-    into how Trino behaves under diverse conditions. This research contributes to understanding Trino's
-    efficiency and optimization strategies. The findings provide practical recommendations for optimizing
-    data distribution strategies.
+	The explosion of data in our world has made analyzing large datasets—commonly known as big data—a
+	crucial factor for competition and productivity growth. This exponential growth has necessitated
+	innovative solutions for efficient data processing. Trino, formerly known as PrestoDB \cite{b1}, \cite{b2}, emerges as
+	a pivotal tool designed for distributed SQL queries across large and diverse data sets. In this
+	study, we assess the performance of Trino in various scenarios, such as different data distribution
+	strategies,  worker configurations, and query complexities. For this project, we utilize three
+	prominent databases—PostgreSQL, Cassandra, and Redis—as integral components of our evaluation
+	framework and execute queries against them. Our methodology involves systematically posing queries
+	under different scenarios, adjusting data distribution strategies and the number of workers. We
+	measure performance metrics, including query latency and optimizer plans, offering valuable insights
+	into how Trino behaves under diverse conditions. This research contributes to understanding Trino's
+	efficiency and optimization strategies. The findings provide practical recommendations for optimizing
+	data distribution strategies.
 
 \end{abstract}
 
 \begin{IEEEkeywords}
-    Big Data, Trino, Distributed SQL Queries
+	Big Data, Trino, Distributed SQL Queries
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -92,14 +92,39 @@ This project is backed by a GitHub repository, that contains scripts and howtos 
 generate and perform the queries. Additionally, the repository includes the results of our measurements, along with a detailed analysis to provide a
 thorough understanding of the outcomes.
 
+\section{Related Work}
 
+The need to efficiently process large-scale datasets has driven the development of distributed SQL
+query engines, which can handle the challenges posed by diverse data sources and computational
+environments. Numerous studies have explored the performance, scalability, and optimization
+strategies of these systems.
+
+Cardas et al. \cite{b9} address a gap in research on the performance of SQL-on-Hadoop systems
+when deployed in containerized environments using Kubernetes. Their study evaluates four
+widely-used SQL platforms—Apache Drill, Apache Hive, Apache Spark SQL, and Trino—deployed
+on a Hadoop cluster managed by Kubernetes. Using the TPC-H benchmark, they found that Trino
+outperformed the other systems in most query scenarios, ranking highest in performance, followed
+by Apache Drill, Apache Spark SQL, and Apache Hive. This research highlights the advantages of
+Kubernetes in managing distributed SQL workloads, emphasizing Trino’s superior query execution
+times compared to other SQL engines in similar environments. These findings are particularly
+relevant to our work, as we also evaluate Trino's performance, although our focus is on different
+data distribution strategies and worker configurations rather than the deployment infrastructure.
+
+Similarly, the MuSQLE framework \cite{b10} explores distributed SQL query execution across multiple
+engine environments, aiming to optimize performance by leveraging the strengths of different SQL
+engines. The study presents a system that dynamically selects the most appropriate execution engine
+based on query characteristics and data distribution, thereby enhancing overall query performance
+and resource utilization. By comparing various execution strategies, MuSQLE provides insights into
+how heterogeneous SQL engines can be orchestrated to handle complex queries efficiently. This approach
+complements our research by offering alternative strategies for optimizing distributed SQL queries,
+particularly in scenarios involving diverse data sources like PostgreSQL, Cassandra, and Redis.
 
 \section{Source Code}
 As mentioned before, the project is backed by a GitHub repository with scripts and howtos which are accessible
 through the following link:
 
 \begin{center}
-    \textcolor{linkblue}{\underline{\href{https://github.com/alex1on/Information-Systems-NTUA}{GitHub Repository}}}
+	\textcolor{linkblue}{\underline{\href{https://github.com/alex1on/Information-Systems-NTUA}{GitHub Repository}}}
 \end{center}
 
 \section{Technology Stack}
@@ -107,11 +132,11 @@ through the following link:
 \subsection{Overview}
 
 \begin{itemize}
-    \item \textbf{Trino:} Was utilized as a distributed query engine.
-    \item \textbf{PostgreSQL:} Database management systems (DBMS) on first worker.
-    \item \textbf{Cassandra:} DBMS on second worker.
-    \item \textbf{Redis:} DBMS on third worker.
-    \item \textbf{TPC-DS Benchmark:} Tool utilized for data and query generation.
+	\item \textbf{Trino:} Was utilized as a distributed SQL query engine.
+	\item \textbf{PostgreSQL:} Database management systems (DBMS) on first worker.
+	\item \textbf{Cassandra:} DBMS on second worker.
+	\item \textbf{Redis:} DBMS on third worker.
+	\item \textbf{TPC-DS Benchmark:} Tool utilized for data and query generation.
 \end{itemize}
 
 \subsection{Trino}
@@ -126,7 +151,7 @@ also designed to handle data warehousing and analytics tasks and its functionali
 
 \subsubsection{\textbf{\underline{Nodes}}}
 As a distributed query engine, Trino processes data in parallel across multiple servers and it runs on a cluster of servers that contains two types of nodes,
-a coordinator and a worker \cite{b9} . Users interact with the coordinator using their SQL query tool, and the coordinator collaborates with workers to access connected
+a coordinator and a worker \cite{b11} . Users interact with the coordinator using their SQL query tool, and the coordinator collaborates with workers to access connected
 data sources. The configuration for this access is stored in catalogs, where parameters like host, port and passwords are defined. Acting as the orchestrator,
 the coordinator distributes workloads in parallel across all workers. Each worker node runs Trino in a seperate JVM instance and processing is further parallelized through threads.
 
@@ -162,9 +187,9 @@ By combining the components mentioned before, Trino gains the ability to represe
 Summarizing the above, a Trino cluster consists of a single node and one or more worker nodes. The coordinator is responsible for admitting, parsing, planning and
 optimizing queries as well as query orchestration. Worker nodes are responsible for query processing. Figure 1 illustrates a simplified view of Trino architechture:
 \begin{figure}[h]
-    \includegraphics[width=0.5\textwidth]{images/trino-architecture.png}
-    \caption{Trino Architechture}
-    \label{fig:trino_architechture}
+	\includegraphics[width=0.5\textwidth]{images/trino-architecture.png}
+	\caption{Trino Architechture}
+	\label{fig:trino_architechture}
 \end{figure}
 
 
@@ -209,15 +234,15 @@ or web services with numerous concurrent users. PostgreSQL operates seamlessly o
 Some key features that make PostgreSQL very interesting and powerful, are the followings:
 
 \begin{itemize}
-    \item \textbf{SQL Compliance and Extensibility:} PostgreSQL allows users to define their own data types, operators, functions, and aggregates. This extensibility
-          provides flexibility for developers to customize and extend the database according to their specific requirements.
-    \item \textbf{ACID Properties:} The system ensures data reliability through transactions with Atomicity, Consistency, Isolation and Durability
-          (ACID) properties, enhancing data integrity and consistency.
-    \item \textbf{Advanced Functionality:} PostgreSQL supports a rich set of features such as automatically updatable views, materialized views, foreign keys providing
-          flexibility and control over database operations.
-    \item \textbf{Concurrency Control:} PostgreSQL employs Multi - Version Concurrency Control (MVCC), which allows multiple transactions to occur simultaneously without interfering with each other. This ensures high concurrency and scalability.
-    \item \textbf{Advanced Query Optimization:} The query planner and optimizer in PostgreSQL are sophisticated, enabling efficient execution plans for complex queries.
-          It includes features like join optimization, subquery optimization, and parallel query execution.
+	\item \textbf{SQL Compliance and Extensibility:} PostgreSQL allows users to define their own data types, operators, functions, and aggregates. This extensibility
+	      provides flexibility for developers to customize and extend the database according to their specific requirements.
+	\item \textbf{ACID Properties:} The system ensures data reliability through transactions with Atomicity, Consistency, Isolation and Durability
+	      (ACID) properties, enhancing data integrity and consistency.
+	\item \textbf{Advanced Functionality:} PostgreSQL supports a rich set of features such as automatically updatable views, materialized views, foreign keys providing
+	      flexibility and control over database operations.
+	\item \textbf{Concurrency Control:} PostgreSQL employs Multi - Version Concurrency Control (MVCC), which allows multiple transactions to occur simultaneously without interfering with each other. This ensures high concurrency and scalability.
+	\item \textbf{Advanced Query Optimization:} The query planner and optimizer in PostgreSQL are sophisticated, enabling efficient execution plans for complex queries.
+	      It includes features like join optimization, subquery optimization, and parallel query execution.
 \end{itemize}
 
 These features make PostgreSQL the go to selection relational DBMS making it the most suitable selection for a relational database in our cluster.
@@ -228,11 +253,11 @@ Cassandra is an open - source, distributed, wide-column store, NoSQL database ma
 providing high availability with no single point of failure. Some of its main features are listed below:
 
 \begin{itemize}
-    \item \textbf{Distributed:} Every node in the cluster has the same role and there is no master. Also there is no single point of failure and data is distributed across the cluster, so
-          each node is responsible for different data.
-    \item \textbf{Replication - Fault Tolerance:} Cassandra supports replication across multiple datacenters, providing lower latency for users. Data is automatically replicated to multiple nodes the number
-          of which can be easily configured.
-    \item \textbf{Scalability:} Cassandra scales horizontally and is designed in such a way, that allows linear increase in write and read throughput by adding new machines in the cluster.
+	\item \textbf{Distributed:} Every node in the cluster has the same role and there is no master. Also there is no single point of failure and data is distributed across the cluster, so
+	      each node is responsible for different data.
+	\item \textbf{Replication - Fault Tolerance:} Cassandra supports replication across multiple datacenters, providing lower latency for users. Data is automatically replicated to multiple nodes the number
+	      of which can be easily configured.
+	\item \textbf{Scalability:} Cassandra scales horizontally and is designed in such a way, that allows linear increase in write and read throughput by adding new machines in the cluster.
 \end{itemize}
 
 These features, in addition to its efficiency and easy scalability contribute to Cassandra being a very powerful and widely used NoSQL database and makes it a perfect database to experiment on.
@@ -246,12 +271,12 @@ read/write operations and is commonly employed as a cache to a non-volatile data
 it is frequently used in combination with other databases in order to leverage the strengths of each database for specific use cases. Some key features are listed below:
 
 \begin{itemize}
-    \item \textbf{In - Memory Storage:} Redis stores data in-memory, which allows for extremely fast read and write operations.
-    \item \textbf{Data Structures:} Redis supports a variety of data structures, including strings, hashes, lists, sets and sorted sets. Each data type comes with its own set of operations.
-    \item \textbf{Persistence:} While Redis is an in-memory store, it provides options for persistence. It can be configured to periodically write data to disk, ensuring data durability.
-    \item \textbf{Replication:} Redis supports master-slave replication, allowing for the creation of replicas of the master Redis server.
-          This provides high availability and fault tolerance, as the slaves can take over if the master fails.
-    \item \textbf{Paritioning:} Redis can be partitioned across multiple nodes, enabling horizontal scaling. This is particularly useful for large datasets and high-throughput scenarios.
+	\item \textbf{In - Memory Storage:} Redis stores data in-memory, which allows for extremely fast read and write operations.
+	\item \textbf{Data Structures:} Redis supports a variety of data structures, including strings, hashes, lists, sets and sorted sets. Each data type comes with its own set of operations.
+	\item \textbf{Persistence:} While Redis is an in-memory store, it provides options for persistence. It can be configured to periodically write data to disk, ensuring data durability.
+	\item \textbf{Replication:} Redis supports master-slave replication, allowing for the creation of replicas of the master Redis server.
+	      This provides high availability and fault tolerance, as the slaves can take over if the master fails.
+	\item \textbf{Paritioning:} Redis can be partitioned across multiple nodes, enabling horizontal scaling. This is particularly useful for large datasets and high-throughput scenarios.
 \end{itemize}
 
 Redis is utilized in our project in order to store a subset of the data set and compare its efficiency and speed.
@@ -266,10 +291,10 @@ of performance as a general purpose decision support system.”
 In general, TPC-DS is:
 
 \begin{itemize}
-    \item Industry standard benchmark (OLAP / Data Warehouse).
-    \item Implemented for many analytical processing systems - RDBMS, Apache Spark, Apache Flink, etc.
-    \item It provides a wide range of different SQL queries.
-    \item In incorporates the tools to generate input data of different sizes.
+	\item Industry standard benchmark (OLAP / Data Warehouse).
+	\item Implemented for many analytical processing systems - RDBMS, Apache Spark, Apache Flink, etc.
+	\item It provides a wide range of different SQL queries.
+	\item In incorporates the tools to generate input data of different sizes.
 \end{itemize}
 
 In our project, TPC-DS is utilized for data and query generation.
@@ -283,15 +308,15 @@ More in-depth details, instructions and commands can be found in our \textcolor{
 \subsection{Cluster and Virtual Machines}
 \label{sec:cluster-and-virtual-machines}
 
-For our project we used four virtual machines (1 coordinator and 3 workers) that were provided by ~okeanos-knossos \cite{b10}.
+For our project we used four virtual machines (1 coordinator and 3 workers) that were provided by ~okeanos-knossos \cite{b12}.
 okeanos-knossos is a GRNET'S cloud service (IaaS) for the Greek Research and Academic Community that gives access to resources such as
 virtual machines and virtual networks. Each virtual machine has the same following specifications:
 
 \begin{itemize}
-    \item \textbf{CPU:} 4 Cores - Intel® Xeon® CPU E5-2650 v3
-    \item \textbf{RAM:} 8GB
-    \item \textbf{Disk:} 30GB
-    \item \textbf{Operating System:} Ubuntu Server 22.04 LTS
+	\item \textbf{CPU:} 4 Cores - Intel® Xeon® CPU E5-2650 v3
+	\item \textbf{RAM:} 8GB
+	\item \textbf{Disk:} 30GB
+	\item \textbf{Operating System:} Ubuntu Server 22.04 LTS
 \end{itemize}
 
 \subsection{Networking}
@@ -302,10 +327,10 @@ In order to allow the communication between the cluster nodes, we set up a local
 as shown in the figure below:
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/LAN.png}
-    \caption{Cluster's Network Topology}
-    \label{fig:LAN}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/LAN.png}
+	\caption{Cluster's Network Topology}
+	\label{fig:LAN}
 \end{figure}
 
 After setting up our machines, we used SSH in order to have access to them and proceeded wtih configurations
@@ -317,8 +342,8 @@ we had to upgrade to 22.04.
 Before we begin, we mention the tools that need to be install:
 
 \begin{itemize}
-    \item {Java 17.03 or later version}
-    \item {Python 3.10.12 or later}
+	\item {Java 17.03 or later version}
+	\item {Python 3.10.12 or later}
 \end{itemize}
 
 \subsection{Trino Cluster Set Up \& Configuration}
@@ -327,10 +352,10 @@ For Trino cluster set up we followed the "Deploying Trino" guide from Trino's \t
 First of all, we downloaded the latest Trino release (435 at the time being). Next, we created the \texttt{trino-server-435/etc} directory which contains the necessary configuration files:
 
 \begin{itemize}
-    \item \textbf{Node properties:} The node properties file, \texttt{node.properties}, contains configuration specific to each node such as the name of the environment and the unique identifier.
-    \item \textbf{JVM config:} The JVM config file, \texttt{jvm.config}, contains a list of command line options used for launching the Java Virtual Machine.
-    \item \textbf{Config properties:} The config properties file, \texttt{config.properties}, contains the configuration for the Trino server. It provides information such as the port of the HTTP server and the type of node (coordinator, worker or both).
-    \item \textbf{Log levels:} The optional log levels file, \texttt{log.properties}, allows setting the desired log level (INFO, DEBUG etc).
+	\item \textbf{Node properties:} The node properties file, \texttt{node.properties}, contains configuration specific to each node such as the name of the environment and the unique identifier.
+	\item \textbf{JVM config:} The JVM config file, \texttt{jvm.config}, contains a list of command line options used for launching the Java Virtual Machine.
+	\item \textbf{Config properties:} The config properties file, \texttt{config.properties}, contains the configuration for the Trino server. It provides information such as the port of the HTTP server and the type of node (coordinator, worker or both).
+	\item \textbf{Log levels:} The optional log levels file, \texttt{log.properties}, allows setting the desired log level (INFO, DEBUG etc).
 \end{itemize}
 
 These files, are present in every node. They also contain the \texttt{trino-server-435/etc/catalog} directory. As mentioned before, Trino accesses data via connectors, which are mounted in catalogs and the connector provides all
@@ -344,9 +369,9 @@ In order to be able to query the data located in those databases, we downloaded 
 Following the instructions from the original sites, we install and set up the databases below:
 
 \begin{itemize}
-    \item \textbf{PostgreSQL:} We installed PostgreSQL 14 on worker 1.
-    \item \textbf{Apache Cassandra:} We installed Cassandra 5.0 on worker 2, following the Debian packages installation guide.
-    \item \textbf{Redis:} We installed Redis on worker 3.
+	\item \textbf{PostgreSQL:} We installed PostgreSQL 14 on worker 1.
+	\item \textbf{Apache Cassandra:} We installed Cassandra 5.0 on worker 2, following the Debian packages installation guide.
+	\item \textbf{Redis:} We installed Redis on worker 3.
 \end{itemize}
 
 
@@ -363,10 +388,10 @@ file, setting the \texttt{listen\_addresses} parameter to the desired LAN IP (19
 For Cassandra, we adjusted parameters like authenticator, authorizer, seeds, listen\_address and rpc\_address that are located in \texttt{/etc/cassandra/cassandra.yaml} as follows:
 
 \begin{itemize}
-    \item \textbf{authenticator:} class\_name : \\org.apache.cassandra.auth.PasswordAuthenticator
-    \item \textbf{authenticator:}
-          class\_name: \\org.apache.cassandra.auth.PasswordAuthenticator
-    \item \textbf{rpc\_address, listen\_address and seeds:} 192.168.1.3 (IP address of worker 2 to whom Cassandra is installed)
+	\item \textbf{authenticator:} class\_name : \\org.apache.cassandra.auth.PasswordAuthenticator
+	\item \textbf{authenticator:}
+	      class\_name: \\org.apache.cassandra.auth.PasswordAuthenticator
+	\item \textbf{rpc\_address, listen\_address and seeds:} 192.168.1.3 (IP address of worker 2 to whom Cassandra is installed)
 \end{itemize}
 
 We also configured \texttt{cassandra.properties} accordingly.
@@ -421,11 +446,11 @@ models for key operational areas like sales, returns, inventory management, and 
 business processes represented in TPC-DS:
 
 \begin{itemize}
-    \item \textbf{} Record customer purchases (and track customer returns) from any sales channel
-    \item \textbf{} Modify prices according to promotions
-    \item \textbf{} Maintain warehouse inventory
-    \item \textbf{} Create dynamic web pages
-    \item \textbf{} Maintain customer profiles (Customer Relationship Management)
+	\item \textbf{} Record customer purchases (and track customer returns) from any sales channel
+	\item \textbf{} Modify prices according to promotions
+	\item \textbf{} Maintain warehouse inventory
+	\item \textbf{} Create dynamic web pages
+	\item \textbf{} Maintain customer profiles (Customer Relationship Management)
 \end{itemize}
 
 \subsubsection{Logical Database Design}
@@ -442,67 +467,67 @@ These tables form a snowflake schema, where the central fact tables are connecte
 The logical design of the TPC-DS schema is detailed, with clearly defined tables and relationships, visualized through high-level diagrams that
 illustrate the connections in the snowflake schema.
 
-Figures 3 through 9 represent the ER diagrams of each of the seven fact tables, as provided by the TPC-DS Standard Specification \cite{b8}.
+Figures 3 through 9 represent the ER diagrams of each of the seven fact tables, as provided by the TPC-DS Standard Specification \cite{b10}.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Store Sales - ER Diagram.png}
-    \caption{Store Sales - ER Diagram}
-    \label{fig:store_sales_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Store Sales - ER Diagram.png}
+	\caption{Store Sales - ER Diagram}
+	\label{fig:store_sales_er_diagram}
 \end{figure}
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Store Returns - ER Diagram.png}
-    \caption{Store Returns - ER Diagram}
-    \label{fig:store_returns_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Store Returns - ER Diagram.png}
+	\caption{Store Returns - ER Diagram}
+	\label{fig:store_returns_er_diagram}
 \end{figure}
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Catalog Sales - ER Diagram.png}
-    \caption{Catalog Sales - ER Diagram}
-    \label{fig:catalog_sales_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Catalog Sales - ER Diagram.png}
+	\caption{Catalog Sales - ER Diagram}
+	\label{fig:catalog_sales_er_diagram}
 \end{figure}
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Catalog Returns - ER Diagram.png}
-    \caption{Catalog Returns - ER Diagram}
-    \label{fig:catalog_returns_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Catalog Returns - ER Diagram.png}
+	\caption{Catalog Returns - ER Diagram}
+	\label{fig:catalog_returns_er_diagram}
 \end{figure}
 
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Web Sales - ER Diagram.png}
-    \caption{Web Sales - ER Diagram}
-    \label{fig:web_sales_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Web Sales - ER Diagram.png}
+	\caption{Web Sales - ER Diagram}
+	\label{fig:web_sales_er_diagram}
 \end{figure}
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Web Returns - ER Diagram.png}
-    \caption{Web Returns - ER Diagram}
-    \label{fig:web_returns_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Web Returns - ER Diagram.png}
+	\caption{Web Returns - ER Diagram}
+	\label{fig:web_returns_er_diagram}
 \end{figure}
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Inventory - ER Diagram.png}
-    \caption{Inventory - ER Diagram}
-    \label{fig:inventory_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/ER_Diagrams/Inventory - ER Diagram.png}
+	\caption{Inventory - ER Diagram}
+	\label{fig:inventory_er_diagram}
 \end{figure}
 
 \subsubsection{Query Templates}
 
-The TPC-DS also provides a query suite of 100 queries which we used to benchmark the performance of our different data distribution strategies. According to the TPC-DS specification \cite{b8} the queries can be categorized as follows:
+The TPC-DS also provides a query suite of 100 queries which we used to benchmark the performance of our different data distribution strategies. According to the TPC-DS specification \cite{b10} the queries can be categorized as follows:
 
 \begin{itemize}
-    \item \textbf{Reporting Queries:} Queries that answer pre-defined questions.
-    \item \textbf{Ad hoc Queries:}  Dynamic queries - they answer immediate and specific business questions.
-    \item \textbf{Iterative OLAP Queries:}  Queries that discorver new trends.
-    \item \textbf{Data Mining Queries:}  Queries that sift through large data, typically joins and aggregations
+	\item \textbf{Reporting Queries:} Queries that answer pre-defined questions.
+	\item \textbf{Ad hoc Queries:}  Dynamic queries - they answer immediate and specific business questions.
+	\item \textbf{Iterative OLAP Queries:}  Queries that discorver new trends.
+	\item \textbf{Data Mining Queries:}  Queries that sift through large data, typically joins and aggregations
 \end{itemize}
 
 \subsection{Data Distribution Strategy}
@@ -514,9 +539,9 @@ Initially, we measured the performance without any data distribution to get a ba
 Due to the limitations of Redis and the large variety of queries TPC-DS provides we chose to select only a part of them and group them in the following groups:
 
 \begin{itemize}
-    \item \textbf{Group 1:} Queries that involve multiple fact tables (e.g., catalog sales and store sales). The actual queries we used in this group are the following: 6, 13, 18, 27, 39, 40, 50, 84, 88, 91, 99.
-    \item \textbf{Group 2:} Queries that involve a single fact table. The actual queries we used in this group are the following: 2, 4, 5, 11, 14, 23, 25, 33, 51, 66, 72, 75, 82, 83, 97.
-    \item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis). The actual queries we used in this group are the following: 30, 62, 85, 90.
+	\item \textbf{Group 1:} Queries that involve multiple fact tables (e.g., catalog sales and store sales). The actual queries we used in this group are the following: 6, 13, 18, 27, 39, 40, 50, 84, 88, 91, 99.
+	\item \textbf{Group 2:} Queries that involve a single fact table. The actual queries we used in this group are the following: 2, 4, 5, 11, 14, 23, 25, 33, 51, 66, 72, 75, 82, 83, 97.
+	\item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis). The actual queries we used in this group are the following: 30, 62, 85, 90.
 \end{itemize}
 
 The full comparison results between PostgreSQL, Cassandra and Redis on the same query group are presented in Section \ref{sec:no-data-distribution}
@@ -528,10 +553,10 @@ The performance measurements from the first test with no data distribution prese
 Running the base benchmark provided us with a better understanding on each database's performance on different queries resulting in a clearer view for our following distribution strategies. The first distribution strategy we tested is one that partitions the data based on the ER of the fact tables.
 The principles that the strategy complies with are the following:
 \begin{itemize}
-    \item \textbf{} Fact tables from the same channel are located in the same database (e.g. store sales and store returns)
-    \item \textbf{} Load databases based on the first test result (e.g. larger tables on more performant databases)
-    \item \textbf{} All dimension tables that accompany a fact table are also located in the same database as the fact table (e.g. inventory is located in PostgreSQL, warehouse, date\_dim and item are also in PostgreSQL)
-    \item \textbf{} If a dimension table is associated with multiple tables that are located in different databases the dimension table is saved in both databases (e.g. date\_dim is associated with all the fact tables so we insert it in all 3 databases)
+	\item \textbf{} Fact tables from the same channel are located in the same database (e.g. store sales and store returns)
+	\item \textbf{} Load databases based on the first test result (e.g. larger tables on more performant databases)
+	\item \textbf{} All dimension tables that accompany a fact table are also located in the same database as the fact table (e.g. inventory is located in PostgreSQL, warehouse, date\_dim and item are also in PostgreSQL)
+	\item \textbf{} If a dimension table is associated with multiple tables that are located in different databases the dimension table is saved in both databases (e.g. date\_dim is associated with all the fact tables so we insert it in all 3 databases)
 \end{itemize}
 
 \section{Results and Analysis}
@@ -546,28 +571,28 @@ As aforementioned, in this first experiment our goal is to establish a base benc
 In Figures 10 to 12 we showcase the performance of each database in each query group.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group1.png}
-    \caption{PostgreSQL vs Cassandra}
-    \label{fig:psql-cass-group1}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group1.png}
+	\caption{PostgreSQL vs Cassandra}
+	\label{fig:psql-cass-group1}
 \end{figure}
 
 From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) we multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino (add reference here).
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group2.png}
-    \caption{PostgreSQL vs Cassandra}
-    \label{fig:psql-cass-group2}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group2.png}
+	\caption{PostgreSQL vs Cassandra}
+	\label{fig:psql-cass-group2}
 \end{figure}
 
 In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query hashing and dynamic filtering (reference required) compared to Cassandra and Trino.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group3.png}
-    \caption{PostgreSQL vs Cassandra vs Redis}
-    \label{fig:store_sales_er_diagram}
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/DBs_bench_no_distro/group3.png}
+	\caption{PostgreSQL vs Cassandra vs Redis}
+	\label{fig:store_sales_er_diagram}
 \end{figure}
 
 Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra. This performance penantly is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all its records and Trino performs any required filtering on all the initial dataset.
@@ -582,33 +607,14 @@ To sum up, our first test showed a clear ranking between the 3 databases, with P
 \subsection{2nd distribution strategy}
 \label{sec:2nd-distribution-strategy}
 
-\section{Related Work}
-
-The need to efficiently process large-scale datasets has driven the development of distributed SQL
-query engines, which can handle the challenges posed by diverse data sources and computational
-environments. Numerous studies have explored the performance, scalability, and optimization
-strategies of these systems.
-
-Cardas et al. \cite{b11} address a gap in research on the performance of SQL-on-Hadoop systems
-when deployed in containerized environments using Kubernetes. Their study evaluates four
-widely-used SQL platforms—Apache Drill, Apache Hive, Apache Spark SQL, and Trino—deployed
-on a Hadoop cluster managed by Kubernetes. Using the TPC-H benchmark, they found that Trino
-outperformed the other systems in most query scenarios, ranking highest in performance, followed
-by Apache Drill, Apache Spark SQL, and Apache Hive. This research highlights the advantages of
-Kubernetes in managing distributed SQL workloads, emphasizing Trino’s superior query execution
-times compared to other SQL engines in similar environments. These findings are particularly
-relevant to our work, as we also evaluate Trino's performance, although our focus is on different
-data distribution strategies and worker configurations rather than the deployment infrastructure.
-
-
 \section{Conclusion}
 \section{References}
 \subsection{Units}
 \begin{itemize}
-    \item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-    \item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-    \item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-    \item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
+	\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
+	\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
+	\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
+	\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
 \end{itemize}
 
 \subsection{Equations}
@@ -619,7 +625,7 @@ but not Greek symbols. Use a long dash rather than a hyphen for a minus
 sign. Punctuate equations with commas or periods when they are part of a
 sentence, as in:
 \begin{equation}
-    a+b=\gamma\label{eq}
+	a+b=\gamma\label{eq}
 \end{equation}
 
 Be sure that the
@@ -645,11 +651,11 @@ article in which the equation numbers skip from (17) to (20), causing
 the copy editors to wonder if you've discovered a new method of
 counting.
 
-    {\BibTeX} does not work by magic. It doesn't get the bibliographic
+	{\BibTeX} does not work by magic. It doesn't get the bibliographic
 data from thin air but from .bib files. If you use {\BibTeX} to produce a
 bibliography you must send the .bib files.
 
-    {\LaTeX} can't read your mind. If you assign the same label to a
+	{\LaTeX} can't read your mind. If you assign the same label to a
 subsubsection and a table, you might find that Table I has been cross
 referenced as Table IV-B3.
 
@@ -666,17 +672,17 @@ surrounding equation.
 
 \subsection{Some Common Mistakes}\label{SCM}
 \begin{itemize}
-    \item The word ``data'' is plural, not singular.
-    \item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-    \item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-    \item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-    \item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-    \item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-    \item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-    \item Do not confuse ``imply'' and ``infer''.
-    \item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-    \item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-    \item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
+	\item The word ``data'' is plural, not singular.
+	\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
+	\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
+	\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
+	\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
+	\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
+	\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
+	\item Do not confuse ``imply'' and ``infer''.
+	\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
+	\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
+	\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
 \end{itemize}
 An excellent style manual for science writers is \cite{b7}.
 
@@ -717,26 +723,26 @@ figures and tables after they are cited in the text. Use the abbreviation
 ``Fig.~\ref{fig}'', even at the beginning of a sentence.
 
 \begin{table}[htbp]
-    \caption{Table Type Styles}
-    \begin{center}
-        \begin{tabular}{|c|c|c|c|}
-            \hline
-            \textbf{Table} & \multicolumn{3}{|c|}{\textbf{Table Column Head}}                                                         \\
-            \cline{2-4}
-            \textbf{Head}  & \textbf{\textit{Table column subhead}}           & \textbf{\textit{Subhead}} & \textbf{\textit{Subhead}} \\
-            \hline
-            copy           & More table copy$^{\mathrm{a}}$                   &                           &                           \\
-            \hline
-            \multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-        \end{tabular}
-        \label{tab1}
-    \end{center}
+	\caption{Table Type Styles}
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{Table} & \multicolumn{3}{|c|}{\textbf{Table Column Head}}                                                         \\
+			\cline{2-4}
+			\textbf{Head}  & \textbf{\textit{Table column subhead}}           & \textbf{\textit{Subhead}} & \textbf{\textit{Subhead}} \\
+			\hline
+			copy           & More table copy$^{\mathrm{a}}$                   &                           &                           \\
+			\hline
+			\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
+		\end{tabular}
+		\label{tab1}
+	\end{center}
 \end{table}
 
 \begin{figure}[htbp]
-    % \centerline{\includegraphics{fig1.png}}
-    \caption{Example of a figure caption.}
-    \label{fig}
+	% \centerline{\includegraphics{fig1.png}}
+	\caption{Example of a figure caption.}
+	\label{fig}
 \end{figure}
 
 Figure Labels: Use 8 point Times New Roman for Figure labels. Use words
@@ -778,19 +784,19 @@ For papers published in translation journals, please give the English
 citation first, followed by the original foreign-language citation \cite{b6}.
 
 \begin{thebibliography}{00}
-    \bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
-    \bibitem{b2} Z. Luo et al., "From Batch Processing to Real Time Analytics: Running Presto® at Scale," 2022 IEEE 38th International Conference on Data Engineering (ICDE), Kuala Lumpur, Malaysia, 2022, pp. 1598-1609
-    \bibitem{b3} Trino. (2024). Trino | Distributed SQL query engine for big data. Available: \href{https://trino.io/}{https://trino.io/}.
-    \bibitem{b4} “Engineering data analytics with Presto and Apache Parquet at Uber,” 2017. [Online]. Available: \href{https://www.uber.com/blog/presto/}{https://www.uber.com/blog/presto/}
-    \bibitem{b5} C. Tang et al. “Hybrid-cloud SQL federation system at Twitter,” in ECSA (Companion), 2021.
-    \bibitem{b6} “Serving hybrid-cloud SQL interactive queries at Twitter,” in European Conference on Software Architecture. Springer, 2022, pp. 3–21.
-    \bibitem{b7} “Presto at Pinterest,” 2019. [Online]. Available: \href{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}
-    \bibitem{b8} TPC Benchmark™ DS - Standard Specification, Version 3.2.0, June 2021
-    \bibitem{b9} Ahmad Houwaiji "Trino Deep Dive" 2023. [Online]. Available: \href{https://whitestork.me/blog/13/Trino-Deep-Dive}{https://whitestork.me/blog/13/Trino-Deep-Dive}
-    \bibitem{b10} ~okeanos-knossos. [Online]. \href{https://okeanos-knossos.grnet.gr/home/}{https://okeanos-knossos.grnet.gr/home/}
-    \bibitem{b11} Cristian Cardas, José F. Aldana-Martín, Antonio M. Burgueño-Romero, Antonio J. Nebro, Jose M. Mateos, and Juan J. Sánchez. 2022. On the performance of SQL scalable systems on Kubernetes: a comparative study. Cluster Computing 26, 3 (Jun 2023)
-    % \bibitem{b6}
-    % \bibitem{b7}
+	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
+	\bibitem{b2} Z. Luo et al., "From Batch Processing to Real Time Analytics: Running Presto® at Scale," 2022 IEEE 38th International Conference on Data Engineering (ICDE), Kuala Lumpur, Malaysia, 2022, pp. 1598-1609
+	\bibitem{b3} Trino. (2024). Trino | Distributed SQL query engine for big data. Available: \href{https://trino.io/}{https://trino.io/}.
+	\bibitem{b4} “Engineering data analytics with Presto and Apache Parquet at Uber,” 2017. [Online]. Available: \href{https://www.uber.com/blog/presto/}{https://www.uber.com/blog/presto/}
+	\bibitem{b5} C. Tang et al. “Hybrid-cloud SQL federation system at Twitter,” in ECSA (Companion), 2021.
+	\bibitem{b6} “Serving hybrid-cloud SQL interactive queries at Twitter,” in European Conference on Software Architecture. Springer, 2022, pp. 3–21.
+	\bibitem{b7} “Presto at Pinterest,” 2019. [Online]. Available: \href{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}
+	\bibitem{b8} TPC Benchmark™ DS - Standard Specification, Version 3.2.0, June 2021
+	\bibitem{b9} Cristian Cardas, José F. Aldana-Martín, Antonio M. Burgueño-Romero, Antonio J. Nebro, Jose M. Mateos, and Juan J. Sánchez. 2022. On the performance of SQL scalable systems on Kubernetes: a comparative study. Cluster Computing 26, 3 (Jun 2023)
+	\bibitem{b10} V. Giannakouris, N. Papailiou, D. Tsoumakos and N. Koziris, "MuSQLE: Distributed SQL query execution over multiple engine environments," 2016 IEEE International Conference on Big Data (Big Data), Washington, DC, USA, 2016
+	\bibitem{b11} Ahmad Houwaiji "Trino Deep Dive" 2023. [Online]. Available: \href{https://whitestork.me/blog/13/Trino-Deep-Dive}{https://whitestork.me/blog/13/Trino-Deep-Dive}
+	\bibitem{b12} ~okeanos-knossos. [Online]. \href{https://okeanos-knossos.grnet.gr/home/}{https://okeanos-knossos.grnet.gr/home/}
+	% \bibitem{b7}
 \end{thebibliography}
 \vspace{12pt}
 \color{red}
