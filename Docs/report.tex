@@ -528,13 +528,13 @@ The TPC-DS also provides a query suite of 100 queries which we used to benchmark
 \begin{itemize}
 	\item \textbf{Reporting Queries:} Queries that answer pre-defined questions.
 	\item \textbf{Ad hoc Queries:}  Dynamic queries - they answer immediate and specific business questions.
-	\item \textbf{Iterative OLAP Queries:}  Queries that discorver new trends.
-	\item \textbf{Data Mining Queries:}  Queries that sift through large data, typically joins and aggregations
+	\item \textbf{Iterative OLAP Queries:}  Queries that discover new trends.
+	\item \textbf{Data Mining Queries:}  Queries that sift through large data, typically joins and aggregations.
 \end{itemize}
 
 \subsection{Data Distribution Strategy}
 
-\subsubsection{No data distribution}
+\subsubsection{No Data Distribution Applied}
 
 Initially, we measured the performance without any data distribution to establish a
 baseline system performance value. It is important to note that we did not test
@@ -560,7 +560,7 @@ We note that, for each benchmark and distribution strategy, we measured the perf
 to ensure more accurate and reliable results.
 The full comparison results between PostgreSQL, Cassandra and Redis on the same query group are presented in Section \ref{sec:no-data-distribution}
 
-\subsubsection{Distribution based on fact tables ER}
+\subsubsection{Entity-Relationship (ER) Fact Table Distribution with Replicated Dimensions}
 
 The performance measurements from the first test without data distribution (\ref{sec:no-data-distribution})
 revealed a clear performance disparity between PostgreSQL, Cassandra, and Redis. PostgreSQL outperformed
@@ -583,10 +583,17 @@ The principles guiding this strategy are as follows:
 	\item If a dimension table is associated with multiple fact tables located in different databases, the dimension table is replicated across all relevant databases (e.g., date\_dim, which is related to all fact tables, is stored in all three databases).
 \end{itemize}
 
-By following these principles, we aim to exploit data locality, since fact tables are joined with their
-respective dimension tables (according to the ER model), reducing network traffic and enhancing performance.
+By following these principles, we aim to achieve two main goals:
 
-Table \ref{table:data-distribution-1} shows the data distribution across databases for this distribution strategy.
+\begin{enumerate}
+    \item Equally partition data across PostgreSQL, Cassandra, and Redis while considering the results 
+	of our base test, which indicated that PostgreSQL should handle the higher load and Redis the lowest.
+    \item Exploit data locality by storing fact tables alongside their respective dimension tables, 
+	since fact tables are joined with them (according to the ER model), reducing network traffic and optimizing join performance.
+\end{enumerate}
+
+This approach balances the data distribution across the three databases while leveraging local joins 
+to enhance performance and reduce data movement. Table \ref{table:data-distribution-1} shows the data distribution across databases for this distribution strategy.
 
 \subsubsection{Optimized Fact and Dimension Consolidation Strategy}
 
@@ -635,7 +642,7 @@ Table \ref{table:data-distribution-2} depicts the data distribution for this str
 
 In this section we are presenting the results of our experiments that measure the performance of Trino in different settings regarding the data distribution across workers and the configuration of the cluster.
 
-\subsection{Base System Benchmark - No data distribution}
+\subsection{Base System Benchmark - No data distribution applied}
 \label{sec:no-data-distribution}
 
 As aforementioned, in this first experiment our goal is to establish a base benchmark score between the three databases (PostgreSQL, Cassandra and Redis) while executing the same query in each database from the Trino CLI.
@@ -649,7 +656,7 @@ In Figures 10 to 12 we showcase the performance of each database in each query g
 	\label{fig:psql-cass-group1}
 \end{figure}
 
-From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) we multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino (add reference here).
+From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) with multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino (add reference here).
 
 \begin{figure}[h]
 	\centering
@@ -658,7 +665,7 @@ From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on avera
 	\label{fig:psql-cass-group2}
 \end{figure}
 
-In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query hashing and dynamic filtering (reference required) compared to Cassandra and Trino.
+In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query caching and dynamic filtering (reference required) compared to Cassandra and Trino.
 
 \begin{figure}[h]
 	\centering
@@ -667,9 +674,9 @@ In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on qu
 	\label{fig:store_sales_er_diagram}
 \end{figure}
 
-Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra. This performance penantly is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all its records and Trino performs any required filtering on all the initial dataset.
+Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra. This performance penalty is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all of its records and Trino performs any required filtering on all the initial dataset.
 
-To sum up, our first test showed a clear ranking between the 3 databases, with PostgreSQL performing cosiderably better than Cassandra with Redis being a distant third.
+To sum up, our first test showed a clear ranking between the 3 databases, with PostgreSQL performing considerably better than Cassandra with Redis being a distant third.
 
 \subsection{Distribution based on fact tables ER}
 \label{sec:distribution-based-on-fact-tables-er}
@@ -920,34 +927,6 @@ with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization
 quantities and units. For example, write ``Temperature (K)'', not
 ``Temperature/K''.
 
-\section*{Acknowledgment}
-
-The preferred spelling of the word ``acknowledgment'' in America is without
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B.
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor
-acknowledgments in the unnumbered footnote on the first page.
-
-\section*{References}
-
-Please number citations consecutively within brackets \cite{b1}. The
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
-
-Number footnotes separately in superscripts. Place the actual footnote at
-the bottom of the column in which it was cited. Do not put footnotes in the
-abstract or reference list. Use letters for table footnotes.
-
-Unless there are six authors or more give all authors' names; do not use
-``et al.''. Papers that have not been published, even if they have been
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers
-that have been accepted for publication should be cited as ``in press'' \cite{b5}.
-Capitalize only the first word in a paper title, except for proper nouns and
-element symbols.
-
-For papers published in translation journals, please give the English
-citation first, followed by the original foreign-language citation \cite{b6}.
-
 \begin{thebibliography}{00}
 	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
 	\bibitem{b2} Z. Luo et al., "From Batch Processing to Real Time Analytics: Running Presto® at Scale," 2022 IEEE 38th International Conference on Data Engineering (ICDE), Kuala Lumpur, Malaysia, 2022, pp. 1598-1609
@@ -963,8 +942,5 @@ citation first, followed by the original foreign-language citation \cite{b6}.
 	\bibitem{b12} ~okeanos-knossos. [Online]. \href{https://okeanos-knossos.grnet.gr/home/}{https://okeanos-knossos.grnet.gr/home/}
 	\bibitem{b13} Pushdown in Trino [Online]. \href{https://trino.io/docs/current/optimizer/pushdown.html}{https://trino.io/docs/current/optimizer/pushdown.html}
 \end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
 
 \end{document}
