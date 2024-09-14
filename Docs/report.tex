@@ -10,6 +10,7 @@
 \usepackage{xcolor}
 \definecolor{linkblue}{RGB}{0,0,255}
 \usepackage{hyperref}
+\usepackage{amssymb}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -439,11 +440,12 @@ its applicability in real-world scenarios.
 
 \subsubsection{Business Model}
 
-TPC-DS models any industry that needs to manage, sell, and distribute products such as food, electronics, furniture, music,
-and toys. It is structured around the business model of a large retail company with a nationwide presence. In addition to
-its brick-and-mortar stores, the company also conducts sales through catalogs and online channels. The benchmark includes
-models for key operational areas like sales, returns, inventory management, and promotions. Below are examples of the
-business processes represented in TPC-DS:
+TPC-DS models industries involved in managing, selling, and distributing products,
+ranging from food and electronics to furniture, music, and toys. It reflects the
+business structure of a large retail company with a nationwide presence, incorporating
+both brick-and-mortar stores as well as catalog and online sales channels. The benchmark
+simulates key operational areas such as sales, returns, inventory management, and
+promotions. Here are examples of the business processes represented in TPC-DS:
 
 \begin{itemize}
 	\item \textbf{} Record customer purchases (and track customer returns) from any sales channel
@@ -534,30 +536,100 @@ The TPC-DS also provides a query suite of 100 queries which we used to benchmark
 
 \subsubsection{No data distribution}
 
-Initially, we measured the performance without any data distribution to get a base system performance value. We note here that we did not opt to test the Redis performance on the full data set due to the RAM limitations (\ref{sec:cluster-and-virtual-machines}) of the virtual machines used in our test system. We chose only to add the web sales and returns fact tables with all the accompanied dimension tables to compare the query run time on queries consisting those (or part of those) tables.
+Initially, we measured the performance without any data distribution to establish a
+baseline system performance value. It is important to note that we did not test
+Redis performance on the full data set due to the RAM limitations
+(\ref{sec:cluster-and-virtual-machines}) of the virtual machines used in our test system.
+Instead, we limited Redis to store only the web sales and returns fact tables along with
+their associated dimension tables, in order to compare query run times for queries
+involving these (or subsets of these) tables.
 
-Due to the limitations of Redis and the large variety of queries TPC-DS provides we chose to select only a part of them and group them in the following groups:
+Due to the limitations of Redis and the diverse set of queries provided by TPC-DS,
+we selected a subset of queries and categorized them into the following groups:
 
 \begin{itemize}
-	\item \textbf{Group 1:} Queries that involve multiple fact tables (e.g., catalog sales and store sales). The actual queries we used in this group are the following: 6, 13, 18, 27, 39, 40, 50, 84, 88, 91, 99.
-	\item \textbf{Group 2:} Queries that involve a single fact table. The actual queries we used in this group are the following: 2, 4, 5, 11, 14, 23, 25, 33, 51, 66, 72, 75, 82, 83, 97.
-	\item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis). The actual queries we used in this group are the following: 30, 62, 85, 90.
+	\item \textbf{Group 1:} Queries involving multiple fact tables (e.g., catalog sales and store sales). The specific queries in this group are: 2, 4, 5, 11, 33, 51, 66, 72, 75, 82, 83, 97.
+	\item \textbf{Group 2:} Queries involving a single fact table. The specific queries in this group are: 6, 13, 18, 27, 30, 39, 40, 50, 62, 84, 85, 88, 90, 91, 99.
+	\item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis). The specific queries in this group are: 30, 62, 85, 90.
 \end{itemize}
 
+Table \ref{table:query-categorization} shows the categorization of the selected TPC-DS queries into their
+respective groups.
+
+We note that, for each benchmark and distribution strategy, we measured the performance 10 times
+to ensure more accurate and reliable results.
 The full comparison results between PostgreSQL, Cassandra and Redis on the same query group are presented in Section \ref{sec:no-data-distribution}
 
 \subsubsection{Distribution based on fact tables ER}
 
-The performance measurements from the first test with no data distribution present (\ref{sec:no-data-distribution}) highlighted a clear performance disparity between PostgreSQL, Cassandra and Redis. PostgreSQL was faster in most queries while Redis was significally slower than both of them which was expected due to the poor optimization of Redis on large datasets (add reference). Cassandra while trailing back comparatively to PostgreSQL in most cases, it was faster in some queries while significally slower in some outliers.  %TODO: (insert type of queries that was faster). 
+The performance measurements from the first test without data distribution (\ref{sec:no-data-distribution})
+revealed a clear performance disparity between PostgreSQL, Cassandra, and Redis. PostgreSQL outperformed
+the others in most queries, while Redis was significantly slower, as expected, due to its poor optimization
+for large datasets (add reference). Cassandra, while generally trailing PostgreSQL, showed better performance
+in some queries, though there were significant slowdowns in certain outliers.
+%TODO: (insert type of queries that was faster).
 
-Running the base benchmark provided us with a better understanding on each database's performance on different queries resulting in a clearer view for our following distribution strategies. The first distribution strategy we tested is one that partitions the data based on the ER of the fact tables.
-The principles that the strategy complies with are the following:
+Running the base benchmark provided us with a better understanding on each database's performance on
+different queries resulting in a clearer view for our following distribution strategies.
+The first distribution strategy we tested involves partitioning data based on the entity-relationship
+(ER) model of the fact tables.
+
+For this strategy, we focused solely on the queries from \textbf{group 1}, which involve multiple fact tables.
+The principles guiding this strategy are as follows:
 \begin{itemize}
-	\item \textbf{} Fact tables from the same channel are located in the same database (e.g. store sales and store returns)
-	\item \textbf{} Load databases based on the first test result (e.g. larger tables on more performant databases)
-	\item \textbf{} All dimension tables that accompany a fact table are also located in the same database as the fact table (e.g. inventory is located in PostgreSQL, warehouse, date\_dim and item are also in PostgreSQL)
-	\item \textbf{} If a dimension table is associated with multiple tables that are located in different databases the dimension table is saved in both databases (e.g. date\_dim is associated with all the fact tables so we insert it in all 3 databases)
+	\item Fact tables from the same channel are located in the same database (e.g., store\_sales and store\_returns are both in the same database).
+	\item Databases are loaded based on the results of the initial test (e.g., larger tables are placed in more performant databases).
+	\item Dimension tables that correspond to a fact table are stored in the same database as the fact table (e.g., if inventory is stored in PostgreSQL, then related tables like warehouse, date\_dim, and item are also stored in PostgreSQL).
+	\item If a dimension table is associated with multiple fact tables located in different databases, the dimension table is replicated across all relevant databases (e.g., date\_dim, which is related to all fact tables, is stored in all three databases).
 \end{itemize}
+
+By following these principles, we aim to exploit data locality, since fact tables are joined with their
+respective dimension tables (according to the ER model), reducing network traffic and enhancing performance.
+
+Table \ref{table:data-distribution-1} shows the data distribution across databases for this distribution strategy.
+
+\subsubsection{Optimized Fact and Dimension Consolidation Strategy}
+
+In the previous strategy based on the entity-relationship (ER) model of the fact tables, we observed a
+performance improvement over Cassandra and Redis but lower performance compared to PostgreSQL alone.
+We identified Redis as the primary bottleneck, especially due to its limited ability to handle large
+datasets efficiently. Notably, the \texttt{web\_sales} table, the largest fact table stored in Redis,
+was a major contributor to this bottleneck.
+
+To address this, we decided to move the \texttt{web\_sales} table from Redis to PostgreSQL.
+This change aimed to reduce the load on Redis while leveraging PostgreSQL's ability to handle larger
+fact tables more effectively.
+
+Additionally, we wanted to minimize the replication of dimension tables across multiple databases,
+which added complexity to query execution. By centralizing frequently joined dimension tables in
+PostgreSQL, we could take advantage of Trino’s pushdown capabilities.
+
+\textit{Pushdown optimization} \cite{b13} in Trino allows specific query operations, such as predicates, aggregation
+functions, or other operations, to be pushed down to the underlying data source for processing.
+This results in several key benefits:
+\begin{itemize}
+	\item Improved overall query performance.
+	\item Reduced network traffic between Trino and the data source.
+	\item Lower load on remote data sources.
+\end{itemize}
+
+Given that PostgreSQL supports more complex operations, such as joins, better than Cassandra or Redis,
+we moved key dimension tables like \texttt{date\_dim}, \texttt{item}, and \texttt{time\_dim} into PostgreSQL.
+These tables are frequently used in join operations across many queries, so by centralizing them in PostgreSQL,
+we allow the database to handle most of the join workload internally, minimizing the number of records sent
+back to Trino for further processing.
+
+By restructuring the data in this way, we aimed to:
+\begin{itemize}
+	\item Eliminate the bottleneck caused by Redis.
+	\item Reduce the complexity of managing replicated dimension tables.
+	\item Leverage PostgreSQL’s ability to execute joins and other operations locally, thus improving query
+	      performance and reducing the data transferred to Trino.
+\end{itemize}
+
+The revised distribution strategy reflects these optimizations, balancing the workload between the databases
+while keeping PostgreSQL at the core of handling complex operations.
+Table \ref{table:data-distribution-2} depicts the data distribution for this strategy.
 
 \section{Results and Analysis}
 
@@ -715,6 +787,99 @@ and, conversely, if there are not at least two sub-topics, then no subheads
 should be introduced.
 
 \subsection{Figures and Tables}
+\begin{table}[htbp]
+	\caption{Categorization of Selected TPC-DS Queries}
+	\begin{center}
+		\begin{tabular}{|c|c|}
+			\hline
+			\textbf{Group}                         & \textbf{Queries}                                          \\
+			\hline
+			\textbf{Group 1: Multiple Fact Tables} & 2, 4, 5, 11, 33, 51, 66, 72, 75, 82, 83, 97               \\
+			\hline
+			\textbf{Group 2: Single Fact Table}    & 6, 13, 18, 27, 30, 39, 40, 50, 62, 84, 85, 88, 90, 91, 99 \\
+			\hline
+			\textbf{Group 3: Web Channel Tables}   & 30, 62, 85, 90                                            \\
+			\hline
+		\end{tabular}
+		\label{table:query-categorization}
+	\end{center}
+\end{table}
+
+\begin{table}[htbp]
+	\caption{Data Distribution Based on Fact Tables ER}
+	\begin{center}
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Table}          & \textbf{PostgreSQL} & \textbf{Cassandra} & \textbf{Redis} \\
+			\hline
+			call\_center            &                     & \checkmark         &                \\
+			catalog\_page           &                     & \checkmark         &                \\
+			catalog\_returns        &                     & \checkmark         &                \\
+			catalog\_sales          &                     & \checkmark         &                \\
+			customer                & \checkmark          & \checkmark         & \checkmark     \\
+			customer\_address       & \checkmark          & \checkmark         & \checkmark     \\
+			customer\_demographics  & \checkmark          & \checkmark         & \checkmark     \\
+			date\_dim               & \checkmark          & \checkmark         & \checkmark     \\
+			household\_demographics & \checkmark          & \checkmark         & \checkmark     \\
+			income\_band            & \checkmark          & \checkmark         & \checkmark     \\
+			inventory               & \checkmark          &                    &                \\
+			item                    & \checkmark          & \checkmark         & \checkmark     \\
+			promotion               & \checkmark          & \checkmark         & \checkmark     \\
+			reason                  & \checkmark          & \checkmark         & \checkmark     \\
+			ship\_mode              &                     & \checkmark         & \checkmark     \\
+			store                   & \checkmark          &                    &                \\
+			store\_returns          & \checkmark          &                    &                \\
+			store\_sales            & \checkmark          &                    &                \\
+			time\_dim               & \checkmark          & \checkmark         & \checkmark     \\
+			warehouse               & \checkmark          & \checkmark         & \checkmark     \\
+			web\_page               &                     &                    & \checkmark     \\
+			web\_returns            &                     &                    & \checkmark     \\
+			web\_sales              &                     &                    & \checkmark     \\
+			web\_site               &                     &                    & \checkmark     \\
+			\hline
+		\end{tabular}
+		\label{table:data-distribution-1}
+	\end{center}
+\end{table}
+
+\begin{table}[htbp]
+	\caption{Optimized Fact and Dimension Consolidation Strategy - Data Parition}
+	\begin{center}
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Table}          & \textbf{PostgreSQL} & \textbf{Cassandra} & \textbf{Redis} \\
+			\hline
+			call\_center            &                     & \checkmark         &                \\
+			catalog\_page           &                     & \checkmark         &                \\
+			catalog\_returns        &                     & \checkmark         &                \\
+			catalog\_sales          &                     & \checkmark         &                \\
+			customer                &                     & \checkmark         &                \\
+			customer\_address       &                     & \checkmark         &                \\
+			customer\_demographics  &                     & \checkmark         &                \\
+			date\_dim               & \checkmark          &                    &                \\
+			household\_demographics &                     & \checkmark         &                \\
+			income\_band            &                     &                    & \checkmark     \\
+			inventory               & \checkmark          &                    &                \\
+			item                    & \checkmark          &                    &                \\
+			promotion               &                     &                    & \checkmark     \\
+			reason                  &                     &                    & \checkmark     \\
+			ship\_mode              &                     &                    & \checkmark     \\
+			store                   & \checkmark          &                    &                \\
+			store\_returns          & \checkmark          &                    &                \\
+			store\_sales            & \checkmark          &                    &                \\
+			time\_dim               & \checkmark          &                    &                \\
+			warehouse               & \checkmark          &                    &                \\
+			web\_page               &                     &                    & \checkmark     \\
+			web\_returns            &                     &                    & \checkmark     \\
+			web\_sales              & \checkmark          &                    &                \\
+			web\_site               &                     &                    & \checkmark     \\
+			\hline
+		\end{tabular}
+		\label{table:data-distribution-2}
+	\end{center}
+\end{table}
+
+
 \paragraph{Positioning Figures and Tables} Place figures and tables at the top and
 bottom of columns. Avoid placing them in the middle of columns. Large
 figures and tables may span across both columns. Figure captions should be
@@ -796,7 +961,7 @@ citation first, followed by the original foreign-language citation \cite{b6}.
 	\bibitem{b10} V. Giannakouris, N. Papailiou, D. Tsoumakos and N. Koziris, "MuSQLE: Distributed SQL query execution over multiple engine environments," 2016 IEEE International Conference on Big Data (Big Data), Washington, DC, USA, 2016
 	\bibitem{b11} Ahmad Houwaiji "Trino Deep Dive" 2023. [Online]. Available: \href{https://whitestork.me/blog/13/Trino-Deep-Dive}{https://whitestork.me/blog/13/Trino-Deep-Dive}
 	\bibitem{b12} ~okeanos-knossos. [Online]. \href{https://okeanos-knossos.grnet.gr/home/}{https://okeanos-knossos.grnet.gr/home/}
-	% \bibitem{b7}
+	\bibitem{b13} Pushdown in Trino [Online]. \href{https://trino.io/docs/current/optimizer/pushdown.html}{https://trino.io/docs/current/optimizer/pushdown.html}
 \end{thebibliography}
 \vspace{12pt}
 \color{red}
