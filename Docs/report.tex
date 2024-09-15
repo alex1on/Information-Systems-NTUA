@@ -390,8 +390,7 @@ For Cassandra, we adjusted parameters like authenticator, authorizer, seeds, lis
 
 \begin{itemize}
 	\item \textbf{authenticator:} class\_name : \\org.apache.cassandra.auth.PasswordAuthenticator
-	\item \textbf{authenticator:}
-	      class\_name: \\org.apache.cassandra.auth.PasswordAuthenticator
+	\item \textbf{authorizer:} CassandraAuthorizer
 	\item \textbf{rpc\_address, listen\_address and seeds:} 192.168.1.3 (IP address of worker 2 to whom Cassandra is installed)
 \end{itemize}
 
@@ -558,7 +557,7 @@ respective groups.
 
 We note that, for each benchmark and distribution strategy, we measured the performance 10 times
 to ensure more accurate and reliable results.
-The full comparison results between PostgreSQL, Cassandra and Redis on the same query group are presented in Section \ref{sec:no-data-distribution}
+The full comparison results between PostgreSQL, Cassandra and Redis on the same query group are presented in Section \ref{sec:no-data-distribution}.\\
 
 \subsubsection{Entity-Relationship (ER) Fact Table Distribution with Replicated Dimensions}
 \label{sec:er-fact-table-distro}
@@ -594,7 +593,7 @@ By following these principles, we aim to achieve two main goals:
 \end{enumerate}
 
 This approach balances the data distribution across the three databases while leveraging local joins
-to enhance performance and reduce data movement. Table \ref{table:data-distribution-1} shows the data distribution across databases for this distribution strategy.
+to enhance performance and reduce data movement. Table \ref{table:data-distribution-1} shows the data distribution across databases for this distribution strategy.\\
 
 \subsubsection{Optimized Fact and Dimension Consolidation Strategy}
 
@@ -700,7 +699,7 @@ Diving deeper on the execution plans of the queries we observed a pattern presen
 \subsection{Optimized Fact and Dimension Consolidation Strategy}
 \label{sec:optimized-fact-dimension-consolidation-strategy}
 
-In the current experiment, we opted for a data distribution with no data replication and with the PostgreSQL and Cassandra to hold most of the large fact tables. We elected for a significant lower load in Redis as this was the main bottleneck in our first strategy where we loaded all databases at approximately the same capacity. The performance comparison between the two strategies is illustrated in Figure ~\ref{fig:distro1-distro2}
+In the current experiment, we opted for a data distribution with no data replication and with the PostgreSQL and Cassandra to hold most of the large fact tables. We elected for a significant lower load in Redis as this was the main bottleneck in our first strategy where we loaded all databases at approximately the same capacity. The performance comparison between the two strategies is illustrated in Figure ~\ref{fig:distro1-distro2}.
 
 \begin{figure}[h]
 	\centering
