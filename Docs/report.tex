@@ -547,13 +547,33 @@ Due to the limitations of Redis and the diverse set of queries provided by TPC-D
 we selected a subset of queries and categorized them into the following groups:
 
 \begin{itemize}
-	\item \textbf{Group 1:} Queries involving multiple fact tables (e.g., catalog sales and store sales). The specific queries in this group are: 2, 4, 5, 11, 33, 51, 66, 72, 75, 82, 83, 97.
-	\item \textbf{Group 2:} Queries involving a single fact table. The specific queries in this group are: 6, 13, 18, 27, 30, 39, 40, 50, 62, 84, 85, 88, 90, 91, 99.
-	\item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis). The specific queries in this group are: 30, 62, 85, 90.
+	\item \textbf{Group 1:} Queries involving multiple fact tables (e.g., catalog sales and store sales).
+	\item \textbf{Group 2:} Queries involving a single fact table.
+	\item \textbf{Group 3:} Queries that access tables from the web channel (the only channel that can be fully stored in Redis).
 \end{itemize}
 
 Table \ref{table:query-categorization} shows the categorization of the selected TPC-DS queries into their
 respective groups.
+
+
+\begin{table*}[htbp]  % The * ensures the table takes up both columns
+	\caption{Categorization of Selected TPC-DS Queries}
+	\begin{center}
+		\begin{tabular}{|c|c|}
+			\hline
+			\textbf{Group}                         & \textbf{Queries}                                          \\
+			\hline
+			\textbf{Group 1: Multiple Fact Tables} & 2, 4, 5, 11, 33, 51, 66, 72, 75, 82, 83, 97               \\
+			\hline
+			\textbf{Group 2: Single Fact Table}    & 6, 13, 18, 27, 30, 39, 40, 50, 62, 84, 85, 88, 90, 91, 99 \\
+			\hline
+			\textbf{Group 3: Web Channel Tables}   & 30, 62, 85, 90                                            \\
+			\hline
+		\end{tabular}
+		\label{table:query-categorization}
+	\end{center}
+\end{table*}
+
 
 We note that, for each benchmark and distribution strategy, we measured the performance 10 times
 to ensure more accurate and reliable results.
@@ -583,6 +603,45 @@ The principles guiding this strategy are as follows:
 	\item If a dimension table is associated with multiple fact tables located in different databases, the dimension table is replicated across all relevant databases (e.g., date\_dim, which is related to all fact tables, is stored in all three databases).
 \end{itemize}
 
+The exact distribution selected in this experiment is detailed in \ref{table:data-distribution-1}.
+
+\begin{table}[htbp]
+	\caption{Data Distribution Based on Fact Tables ER}
+	\begin{center}
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Table}          & \textbf{PostgreSQL} & \textbf{Cassandra} & \textbf{Redis} \\
+			\hline
+			call\_center            &                     & \checkmark         &                \\
+			catalog\_page           &                     & \checkmark         &                \\
+			catalog\_returns        &                     & \checkmark         &                \\
+			catalog\_sales          &                     & \checkmark         &                \\
+			customer                & \checkmark          & \checkmark         & \checkmark     \\
+			customer\_address       & \checkmark          & \checkmark         & \checkmark     \\
+			customer\_demographics  & \checkmark          & \checkmark         & \checkmark     \\
+			date\_dim               & \checkmark          & \checkmark         & \checkmark     \\
+			household\_demographics & \checkmark          & \checkmark         & \checkmark     \\
+			income\_band            & \checkmark          & \checkmark         & \checkmark     \\
+			inventory               & \checkmark          &                    &                \\
+			item                    & \checkmark          & \checkmark         & \checkmark     \\
+			promotion               & \checkmark          & \checkmark         & \checkmark     \\
+			reason                  & \checkmark          & \checkmark         & \checkmark     \\
+			ship\_mode              &                     & \checkmark         & \checkmark     \\
+			store                   & \checkmark          &                    &                \\
+			store\_returns          & \checkmark          &                    &                \\
+			store\_sales            & \checkmark          &                    &                \\
+			time\_dim               & \checkmark          & \checkmark         & \checkmark     \\
+			warehouse               & \checkmark          & \checkmark         & \checkmark     \\
+			web\_page               &                     &                    & \checkmark     \\
+			web\_returns            &                     &                    & \checkmark     \\
+			web\_sales              &                     &                    & \checkmark     \\
+			web\_site               &                     &                    & \checkmark     \\
+			\hline
+		\end{tabular}
+		\label{table:data-distribution-1}
+	\end{center}
+\end{table}
+
 By following these principles, we aim to achieve two main goals:
 
 \begin{enumerate}
@@ -593,7 +652,7 @@ By following these principles, we aim to achieve two main goals:
 \end{enumerate}
 
 This approach balances the data distribution across the three databases while leveraging local joins
-to enhance performance and reduce data movement. Table \ref{table:data-distribution-1} shows the data distribution across databases for this distribution strategy.\\
+to enhance performance and reduce data movement.\\
 
 \subsubsection{Optimized Fact and Dimension Consolidation Strategy}
 
@@ -637,6 +696,43 @@ By restructuring the data in this way, we aimed to:
 The revised distribution strategy reflects these optimizations, balancing the workload between the databases
 while keeping PostgreSQL at the core of handling complex operations.
 Table \ref{table:data-distribution-2} depicts the data distribution for this strategy.
+
+\begin{table}[htbp]
+	\caption{Optimized Fact and Dimension Consolidation Strategy - Data Parition}
+	\begin{center}
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Table}          & \textbf{PostgreSQL} & \textbf{Cassandra} & \textbf{Redis} \\
+			\hline
+			call\_center            &                     & \checkmark         &                \\
+			catalog\_page           &                     & \checkmark         &                \\
+			catalog\_returns        &                     & \checkmark         &                \\
+			catalog\_sales          &                     & \checkmark         &                \\
+			customer                &                     & \checkmark         &                \\
+			customer\_address       &                     & \checkmark         &                \\
+			customer\_demographics  &                     & \checkmark         &                \\
+			date\_dim               & \checkmark          &                    &                \\
+			household\_demographics &                     & \checkmark         &                \\
+			income\_band            &                     &                    & \checkmark     \\
+			inventory               & \checkmark          &                    &                \\
+			item                    & \checkmark          &                    &                \\
+			promotion               &                     &                    & \checkmark     \\
+			reason                  &                     &                    & \checkmark     \\
+			ship\_mode              &                     &                    & \checkmark     \\
+			store                   & \checkmark          &                    &                \\
+			store\_returns          & \checkmark          &                    &                \\
+			store\_sales            & \checkmark          &                    &                \\
+			time\_dim               & \checkmark          &                    &                \\
+			warehouse               & \checkmark          &                    &                \\
+			web\_page               &                     &                    & \checkmark     \\
+			web\_returns            &                     &                    & \checkmark     \\
+			web\_sales              & \checkmark          &                    &                \\
+			web\_site               &                     &                    & \checkmark     \\
+			\hline
+		\end{tabular}
+		\label{table:data-distribution-2}
+	\end{center}
+\end{table}
 
 \subsubsection{Scalability impact on query performance}
 
@@ -748,101 +844,6 @@ Observations showcased that network data transfers were proportioned with the nu
 \section{Conclusion}
 
 To summarize, in this paper we measured the Trino performance on distributed query execution of a subset of the TPC-DS benchmarking suite with various distribution strategies and configurations. Our best tests while on average performe marginally slower than a direct run on PostgreSQL provide use with valuable information. In many use cases, data distribution from various sources is a necessity and not an option. We showcased that Trino can perform on par with a native SQL database while running SQL queries on data sources that do not natively support these kind of operations. Further work could test Trino performance on more powerful clusters with better resources and more advanced distribution strategies. A good staring point could be to use the Redis database as an intermediate query result caching database instead of a direct data source. Nonetheless, Trino can be a powerful and performant distributed engine in cases where many data sources have to be used simultaneously without having to rely on ETL operations to make the data queryable.
- 
-\section{References}
-
-\subsection{Figures and Tables}
-\begin{table}[htbp]
-	\caption{Categorization of Selected TPC-DS Queries}
-	\begin{center}
-		\begin{tabular}{|c|c|}
-			\hline
-			\textbf{Group}                         & \textbf{Queries}                                          \\
-			\hline
-			\textbf{Group 1: Multiple Fact Tables} & 2, 4, 5, 11, 33, 51, 66, 72, 75, 82, 83, 97               \\
-			\hline
-			\textbf{Group 2: Single Fact Table}    & 6, 13, 18, 27, 30, 39, 40, 50, 62, 84, 85, 88, 90, 91, 99 \\
-			\hline
-			\textbf{Group 3: Web Channel Tables}   & 30, 62, 85, 90                                            \\
-			\hline
-		\end{tabular}
-		\label{table:query-categorization}
-	\end{center}
-\end{table}
-
-\begin{table}[htbp]
-	\caption{Data Distribution Based on Fact Tables ER}
-	\begin{center}
-		\begin{tabular}{|l|c|c|c|}
-			\hline
-			\textbf{Table}          & \textbf{PostgreSQL} & \textbf{Cassandra} & \textbf{Redis} \\
-			\hline
-			call\_center            &                     & \checkmark         &                \\
-			catalog\_page           &                     & \checkmark         &                \\
-			catalog\_returns        &                     & \checkmark         &                \\
-			catalog\_sales          &                     & \checkmark         &                \\
-			customer                & \checkmark          & \checkmark         & \checkmark     \\
-			customer\_address       & \checkmark          & \checkmark         & \checkmark     \\
-			customer\_demographics  & \checkmark          & \checkmark         & \checkmark     \\
-			date\_dim               & \checkmark          & \checkmark         & \checkmark     \\
-			household\_demographics & \checkmark          & \checkmark         & \checkmark     \\
-			income\_band            & \checkmark          & \checkmark         & \checkmark     \\
-			inventory               & \checkmark          &                    &                \\
-			item                    & \checkmark          & \checkmark         & \checkmark     \\
-			promotion               & \checkmark          & \checkmark         & \checkmark     \\
-			reason                  & \checkmark          & \checkmark         & \checkmark     \\
-			ship\_mode              &                     & \checkmark         & \checkmark     \\
-			store                   & \checkmark          &                    &                \\
-			store\_returns          & \checkmark          &                    &                \\
-			store\_sales            & \checkmark          &                    &                \\
-			time\_dim               & \checkmark          & \checkmark         & \checkmark     \\
-			warehouse               & \checkmark          & \checkmark         & \checkmark     \\
-			web\_page               &                     &                    & \checkmark     \\
-			web\_returns            &                     &                    & \checkmark     \\
-			web\_sales              &                     &                    & \checkmark     \\
-			web\_site               &                     &                    & \checkmark     \\
-			\hline
-		\end{tabular}
-		\label{table:data-distribution-1}
-	\end{center}
-\end{table}
-
-\begin{table}[htbp]
-	\caption{Optimized Fact and Dimension Consolidation Strategy - Data Parition}
-	\begin{center}
-		\begin{tabular}{|l|c|c|c|}
-			\hline
-			\textbf{Table}          & \textbf{PostgreSQL} & \textbf{Cassandra} & \textbf{Redis} \\
-			\hline
-			call\_center            &                     & \checkmark         &                \\
-			catalog\_page           &                     & \checkmark         &                \\
-			catalog\_returns        &                     & \checkmark         &                \\
-			catalog\_sales          &                     & \checkmark         &                \\
-			customer                &                     & \checkmark         &                \\
-			customer\_address       &                     & \checkmark         &                \\
-			customer\_demographics  &                     & \checkmark         &                \\
-			date\_dim               & \checkmark          &                    &                \\
-			household\_demographics &                     & \checkmark         &                \\
-			income\_band            &                     &                    & \checkmark     \\
-			inventory               & \checkmark          &                    &                \\
-			item                    & \checkmark          &                    &                \\
-			promotion               &                     &                    & \checkmark     \\
-			reason                  &                     &                    & \checkmark     \\
-			ship\_mode              &                     &                    & \checkmark     \\
-			store                   & \checkmark          &                    &                \\
-			store\_returns          & \checkmark          &                    &                \\
-			store\_sales            & \checkmark          &                    &                \\
-			time\_dim               & \checkmark          &                    &                \\
-			warehouse               & \checkmark          &                    &                \\
-			web\_page               &                     &                    & \checkmark     \\
-			web\_returns            &                     &                    & \checkmark     \\
-			web\_sales              & \checkmark          &                    &                \\
-			web\_site               &                     &                    & \checkmark     \\
-			\hline
-		\end{tabular}
-		\label{table:data-distribution-2}
-	\end{center}
-\end{table}
 
 \begin{thebibliography}{00}
 	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
