@@ -11,6 +11,7 @@ This project, undertaken for the Information Systems course at ECE NTUA, explore
 - [TPC-DS](#working-with-the-tpc-ds-benchmark-suite)
 - [Loading TPC-DS Data](#loading-tpc-ds-data-to-the-databases)
 - [Benchmarks](#benchmarks)
+- [Figures](#figures)
 
 ## Set up
 ### Trino cluster setup:
@@ -509,3 +510,29 @@ Given that Redis is an in-memory database and certain tables contain millions of
 
 
 ## Benchmarks
+
+- [No Distribution](#no-distribution)
+- [Fact Table ER-Based Distribution](#fact-table-er-based-distribution)
+- [Optimized Fact and Dimension Consolidation Distribution](#optimized-fact-and-dimension-consolidation-distribution)
+
+### No Distribution
+
+The `Benchmarks/run_queries_custom.sh` script executes this initial benchmark. You can modify the `QUERIES` variable within the script to specify the queries you'd like to test. The script runs each query twice for each database (PostgreSQL, Cassandra, and Redis where applicable) using Trino, and stores the latency results under the `Benchmarks/query_results` directory.
+
+### Fact Table ER-Based Distribution
+
+The `Benchmarks/run_queries_distributed.sh` script handles this benchmark by executing the queries defined in the `QUERIES` variable in a distributed manner. Each query is run twice, and the results are saved in the `Benchmarks/query_results directory`. The script accepts an optional parameter: `partition [1/2]`, allowing you to specify whether to run queries for strategy 1 or strategy 2, located in the `../../queries_strategy1` and `../../queries_strategy2` directories, respectively.
+
+### Optimized Fact and Dimension Consolidation Distribution
+
+This benchmark is also executed using the `Benchmarks/run_queries_distributed.sh` script, following the same procedure as described above.
+
+
+## Figures
+
+The scripts for generating figures are located in the `Benchmarks/figure_generators` directory, while the generated figures are stored in `Benchmarks/figure_generators/figures/`. The figure generators are as follows:
+
+- `no_dist_fig_gen.py`: Generates `group1.png`, `group2.png`, and `group3.png`, which compare PostgreSQL, Cassandra, and Redis (only in group 3) for queries in group 1, group 2, and group 3 based on the no-distribution benchmark.
+- `no_dist_vs_dist1_fig_gen.py`: Produces the `no_dist_vs_dist1.png` figure, comparing the no-distribution benchmark to the first distribution benchmark.
+- `dist1_vs_dist2_fig_gen.py`: Creates the `dist1_vs_dist2.png` figure, comparing the performance of the first and second distribution strategies.
+- `dist_workers_fig_gen.py`: Generates `dist_queries_over_workers.png`, which shows the performance of the final distribution strategy across different numbers of Trino workers (1, 2, and 3).
