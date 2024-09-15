@@ -1,0 +1,29 @@
+.env
+**/*.log
+**/__pycache__/
+
+# Benchmarks
+Benchmarks/query_results/
+Benchmarks/query_results_redis
+Benchmarks/output*
+
+# Databases
+utils/query_validation.txt
+deprecated/    
+
+# Docs
+/Docs/*
+!/Docs/report.tex
+!/Docs/report.pdf
+!/Docs/projects.pdf
+!Docs/images
+
+# Results
+redis_results/
+Benchmarks/log/*
+Benchmarks/query_results_merged/*
+
+.DS_Store
+
+# Figures
+Benchmarks/figure_generators/figures/*
