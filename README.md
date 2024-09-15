@@ -151,19 +151,19 @@ You now have PostgreSQL working in your node.
 For Cassandra we follow the [Debian packages installation guide](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html#installing-the-debian-packages).
 1. Add the Apache repository of Cassandra to the file `cassandra.sources.list`. We use the latest major version 5.0:
 ```console
-echo "deb https://debian.cassandra.apache.org 50x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list 
+$ echo "deb https://debian.cassandra.apache.org 50x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list 
 ```
 2. Add the Apache Cassandra repository keys to the list of trusted keys on the server:
 ```console
-curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
+$ curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
 ```
 3. Update the packages:
 ```console
-sudo apt-get update
+$ sudo apt-get update
 ```
 4. Install Cassandra with APT:
 ```console
-sudo apt-get install cassandra
+$ sudo apt-get install cassandra
 ```
 To check the Cassandra installation run:
 ```console
@@ -181,19 +181,19 @@ Cassandra is available in your node.
 ### Redis setup:
 1. Download and install the Redis GPG key:
 ```console
-curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+$ curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 ```
 2. Add the Redis repository to the package manager:
 ```console
-echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+$ echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
 ```
 3. Update the packages:
 ```console
-sudo apt-get update
+$ sudo apt-get update
 ```
 4. Install Redis with APT:
 ```console
-sudo apt-get install redis
+$ sudo apt-get install redis
 ```  
 
 ## Database connection with Trino server
@@ -438,18 +438,18 @@ The loading of data is accomplished through the `Databases/PostgreSQL/load_data_
 
 So after running the following commands under `Databases/PostgreSQL/` dir:
 ```console
-python create_pg_schema.py
-python load_data_pg.py
+$ python create_pg_schema.py
+$ python load_data_pg.py
 ```
 The database schema should be properly defined, and the PostgreSQL database should be populated with the corresponding data.
 
 The `load_data_pg.py` script accepts an optional `--partition` parameter, allowing selective loading of tables based on partition strategy. You can specify a partition by running:
 ```console
-python load_data_pg.py --partition 1
+$ python load_data_pg.py --partition 1
 ```
 or
 ```console
-python load_data_pg.py --partition 2
+$ python load_data_pg.py --partition 2
 ```
 This will load only the tables defined in the specified partition (1 or 2). If no partition is provided, all tables are loaded by default.
 
@@ -466,14 +466,14 @@ Data loading in Cassandra follows a similar process to PostgreSQL. The script `D
 
 Upon executing the following commands:
 ```console
-python Databases/Cassandra/utils/create_schema_cql.py
-python Databases/Cassandra/load_data_cass.py
+$ python Databases/Cassandra/utils/create_schema_cql.py
+$ python Databases/Cassandra/load_data_cass.py
 ```
 The Cassandra database should have its schema properly established, and data should be successfully loaded.
 
 Similar to `load_data_pg.py`, `load_data_cass.py` script accepts two parameters:
 - `--all_tables=true/false`: Specifies whether to load all tables. The default is `false`.
-- `--parition (1 or 2)`: Defines which partition to load (1 or 2).
+- `--partition (1 or 2)`: Defines which partition to load (1 or 2).
 
 ### Load Data to Redis
 
@@ -494,8 +494,8 @@ For loading data into Redis, the following modules and scripts are utilized in c
 
 Upon executing the following commands:
 ```console
-./create_trino_json_table_definitions.sh
-./load_data_redis.sh
+$ ./create_trino_json_table_definitions.sh
+$ ./load_data_redis.sh
 ```
 Data is successfully inserted into Redis, and the JSON files are structured in a way that allows Trino to query the Redis data in a structured manner.
 
