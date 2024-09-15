@@ -88,5 +88,5 @@ function gen_query_variant
 
 
 
-#fix_query_template
+fix_query_template
 gen_query

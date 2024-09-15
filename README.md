@@ -387,12 +387,20 @@ $ make CC=ggc-9
 ```
 
 ### Generate benchmark data
-Again in the `/DSGen-software-code-3.2.0rc1/tools` directory to generate benchmark data run the following command:
+
+1. In the `/DSGen-software-code-3.2.0rc1/tools` directory to generate benchmark data run the following command:
 ```console
 $ ./dsdgen -scale <size> -dir <save_directory>
 ```
 > Specify the data sample size with the `size` parameter. The amount of data is in GBs.
 
+2. Clean up the generated data. Due to the format of the generated data, by the TPC-DS, not being directly compatible with the PostgreSQL and Cassandra `COPY` command, we created a script that fixes this issue. In the root directory of our project run the following script:
+
+```console
+$ ./utils/clean_tpc_data.sh
+```
+
+> Note: change `datadir="../../tpc_data"` to the directory you specified when generating the data in step 1.
 
 ## Loading TPC-DS data to the databases
 
@@ -508,6 +516,31 @@ Similar to the previous scripts, `load_data_redis.py` accepts the following para
 #### Note: 
 Given that Redis is an in-memory database and certain tables contain millions of records, not all records can fit in memory. Consequently, the insertion process focuses on a subset of the data for practical considerations.
 
+## Generating TPC-DS queries
+
+To generate the complete query suite (1 - 99) run the following script while on the root project directory:
+
+```console
+$ ./utils/fix_tpcds.sh
+```
+
+It outputs all the queries with a unique sequence number in the `queries/` directory.
+
+Due to different SQL dialects that Trino and TPC-DS use we also need to make some adjustments in the queries. 
+
+Run the following script to make the necessary changes:
+
+```console
+$ python ./utils/fix_queries.py
+```
+
+To validate if the queries are now compatible with the Trino SQL dialect run the validation script:
+
+```console
+$ ./validate_queries.sh
+```
+
+It outputs on a txt file the validity of each query (true or false).
 
 ## Benchmarks
 
