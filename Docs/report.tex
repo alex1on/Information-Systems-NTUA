@@ -639,6 +639,21 @@ The revised distribution strategy reflects these optimizations, balancing the wo
 while keeping PostgreSQL at the core of handling complex operations.
 Table \ref{table:data-distribution-2} depicts the data distribution for this strategy.
 
+\subsubsection{Scalability impact on query performance}
+
+Up until this section, we discussed the impact of different distribution strategies on the query performance. Fine tuning is required to find the optimal strategy for the data you want to query on and is something that we tested in our system and faced the various difficulties.
+
+In this section though, we focus to the Trino configuration and the impact it has on query run time. We use the distribution used in the previous experiment as seen in Table ~\ref{table:data-distribution-2} as it was the best performing distribution we used. We run the query suite described previously with 1, 2 and 3 workers. The configuration for each worker count is the following:
+
+\begin{itemize}
+	\item \textbf{1 Worker:} Only the Trino coordinator was kept active.
+	\item \textbf{2 Workers:} The Trino coordinator and the PostgreSQL are active.
+	\item \textbf{3 Workers:} All nodes (except Redis node) are active.
+\end{itemize}
+
+Generally, the Redis node we chose it keep it inactive in all experiments as it had conflicting RAM usage, both for the Redis process and the Trino worker process so the system was resulting in many OOM (out-of-memory errors).
+
+
 \section{Results and Analysis}
 
 In this section we are presenting the results of our experiments that measure the performance of Trino in different settings regarding the data distribution across workers and the configuration of the cluster.
@@ -700,7 +715,7 @@ Diving deeper on the execution plans of the queries we observed a pattern presen
 \subsection{Optimized Fact and Dimension Consolidation Strategy}
 \label{sec:optimized-fact-dimension-consolidation-strategy}
 
-In the current experiment, we opted for a data distribution with no data replication and with the PostgreSQL and Cassandra to hold most of the large fact tables. We elected for a significant lower load in Redis as this was the main bottleneck in our first strategy where we loaded all databases at approximately the same capacity. The performance comparison between the two strategies is illustrated in Figure ~\ref{fig:distro1-distro2}
+In the current experiment, we opted for a data distribution with no data replication and with the PostgreSQL and Cassandra to hold most of the large fact tables. We elected for a significant lower load in Redis as this was the main bottleneck in our first strategy where we loaded all databases at approximately the same capacity. The performance comparison between the two strategies is illustrated in Figure ~\ref{fig:distro1-distro2}.
 
 \begin{figure}[h]
 	\centering
@@ -715,7 +730,26 @@ Analyzing the execution plans of the queries we again see that the Trino cluster
 
 We compared also CPU times between runs with distribution present and no distribution active. In PostgreSQL the networking time is far less noticable than on every other test. Generally, queries that could be handled on their entirety by PostgreSQL have less parallelism present and less data retrieval time due to less data being fetched and as a result sent to other workers.
 
+\subsection{Scalability impact on query performance}
+\label{sec:scalability-impact-on-query-performance}
+
+In Figure ~\ref{fig:distro-workers} we present the performance impact on the query performance based on the amount of Trino nodes used in the cluster.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/dist_worker_count/dist_queries_over_workers.png}
+	\caption{Node number performance impact on 2nd experiment}
+	\label{fig:distro-workers}
+\end{figure}
+
+As anticipated, increasing the number of nodes led to a noticeable performance improvement. The most significant gain occurred when scaling from 1 to 2 nodes, with an average query run time reduction of 27\%. However, further node increases provided only a moderate performance boost, yielding an additional 5\% improvement.
+
+Observations showcased that network data transfers were proportioned with the number of nodes which was again expected. We also checked the LAN performance using the \texttt{iperf3} tool. The results showcased that the network connectivity was sub optimal for such a use case and our test bench was taking a hit from it.
+
 \section{Conclusion}
+
+To summarize, in this paper we measured the Trino performance on distributed query execution of a subset of the TPC-DS benchmarking suite with various distribution strategies and configurations. Our best tests while on average performe marginally slower than a direct run on PostgreSQL provide use with valuable information. In many use cases, data distribution from various sources is a necessity and not an option. We showcased that Trino can perform on par with a native SQL database while running SQL queries on data sources that do not natively support these kind of operations. Further work could test Trino performance on more powerful clusters with better resources and more advanced distribution strategies. A good staring point could be to use the Redis database as an intermediate query result caching database instead of a direct data source. Nonetheless, Trino can be a powerful and performant distributed engine in cases where many data sources have to be used simultaneously without having to rely on ETL operations to make the data queryable.
+ 
 \section{References}
 
 \subsection{Figures and Tables}
@@ -810,47 +844,6 @@ We compared also CPU times between runs with distribution present and no distrib
 		\label{table:data-distribution-2}
 	\end{center}
 \end{table}
-
-
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and
-bottom of columns. Avoid placing them in the middle of columns. Large
-figures and tables may span across both columns. Figure captions should be
-below the figures; table heads should appear above the tables. Insert
-figures and tables after they are cited in the text. Use the abbreviation
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{table}[htbp]
-	\caption{Table Type Styles}
-	\begin{center}
-		\begin{tabular}{|c|c|c|c|}
-			\hline
-			\textbf{Table} & \multicolumn{3}{|c|}{\textbf{Table Column Head}}                                                         \\
-			\cline{2-4}
-			\textbf{Head}  & \textbf{\textit{Table column subhead}}           & \textbf{\textit{Subhead}} & \textbf{\textit{Subhead}} \\
-			\hline
-			copy           & More table copy$^{\mathrm{a}}$                   &                           &                           \\
-			\hline
-			\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-		\end{tabular}
-		\label{tab1}
-	\end{center}
-\end{table}
-
-\begin{figure}[htbp]
-	% \centerline{\includegraphics{fig1.png}}
-	\caption{Example of a figure caption.}
-	\label{fig}
-\end{figure}
-
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words
-rather than symbols or abbreviations when writing Figure axis labels to
-avoid confusing the reader. As an example, write the quantity
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including
-units in the label, present them within parentheses. Do not label axes only
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of
-quantities and units. For example, write ``Temperature (K)'', not
-``Temperature/K''.
 
 \begin{thebibliography}{00}
 	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
