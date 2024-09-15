@@ -26,8 +26,9 @@ def create_json_schema(table_name, primary_key, table_columns, col_data_types):
                 "type": "VARCHAR"
             })
     else:
-        print(f"Error: No mapping found for table '{table_name}'")
-        return None
+        if table_name not in ["dbgen_version", "inventory", "store_sales", "catalog_sales"]:
+            print(f"Error: No mapping found for table '{table_name}'")
+            return None
     
     for column in table_columns:
         if column in primary_key:

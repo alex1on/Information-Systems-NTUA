@@ -5,18 +5,16 @@
 # Benchmarks
 Benchmarks/query_results/
 Benchmarks/query_results_redis
-Benchmarks/query_results_redis_backup
 Benchmarks/output*
 
 # Databases
-Databases/PostgreSQL/bash_scripts/
-
 utils/query_validation.txt
 deprecated/    
 
 # Docs
 /Docs/*
 !/Docs/report.tex
+!/Docs/report.pdf
 !/Docs/projects.pdf
 !Docs/images
 
@@ -26,3 +24,6 @@ Benchmarks/log/*
 Benchmarks/query_results_merged/*
 
 .DS_Store
+
+# Figures
+Benchmarks/figure_generators/figures/*
