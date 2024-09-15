@@ -1,8 +1,7 @@
-# Information-Systems-NTUA
+# Distributed Execution of SQL Queries over Trino (Information Systems - NTUA)
 
 ## Overview 
-In this project we set up a Trino cluster with multiple data source types. We will test the Trino capabilities and benchmark that peformance when running queries with multiple data sources.
-
+This project, undertaken for the Information Systems course at ECE NTUA, explores the performance of Trino, a distributed SQL query engine, across various data distribution strategies, worker configurations, and query complexities. Using PostgreSQL, Cassandra, and Redis as data sources, we analyze Trino's efficiency by measuring query latency and optimizer plans under different scenarios. The findings provide insights and recommendations for optimizing data distribution and performance in distributed systems.
 ## Bookmarks
 
 - [Trino cluster](#trino-cluster-setup)
@@ -10,10 +9,12 @@ In this project we set up a Trino cluster with multiple data source types. We wi
 - [Set up Databases](#database-environment)
 - [How to connect Databases with Trino server](#database-connection-with-trino-server)
 - [TPC-DS](#working-with-the-tpc-ds-benchmark-suite)
+- [Loading TPC-DS Data](#loading-tpc-ds-data-to-the-databases)
+- [Benchmarks](#benchmarks)
 
 ## Set up
 ### Trino cluster setup:
-1. Install Java 17.03 or newer:
+1. Install Java 17.03 or later:
 ```console
 $ sudo apt install openjdk-17-jdk openjdk-17-jre
 ```
@@ -28,20 +29,17 @@ Python 3.10.12
 $ wget https://repo.maven.apache.org/maven2/io/trino/trino-server/435/trino-server-435.tar.gz
 $ tar xvzf trino-server-435.tar.gz
 ```
-4. Create a `data` directory outside of the installation directory for Trino logs:
-```console
-$ mkdir data/
-```
-5. Create an `etc` directory inside the installation directory:
+4. Create an `etc` directory inside the installation directory:
 ```console
 $ cd ./trino-server-435/
 $ mkdir etc/
 ```
-6. Now you need to create the necessary Trino configuration files inside the `/etc` directory we previously created:
+5. Now you need to create the necessary Trino configuration files inside the `/etc` directory we previously created:
     - jvm.config
     - config.properties
     - node.properties
     - log.properties
+
 To create and provide the correct configuration for the cluster run the following:
 ```console
 $ touch jvm.config config.properties node.properties log.properties
@@ -99,7 +97,7 @@ node.environment=development
 # log.properties content
 io.trino=INFO
 ```
-7. You are now ready to start the cluster. At all nodes (while in the default installation directory) run:
+6. You are now ready to start the cluster. At all nodes (while in the default installation directory) run:
 ```console
 $ bin/launcher start
 ```
@@ -126,13 +124,13 @@ Trino CLI 435
 ```
 
 ## Database environment
-We will install the following dbs one in each node of your Trino Cluster:
+Install the following DBMSs one in each worker node of your Trino Cluster:
 
   - [PostgreSQL](#postgresql-setup)
   - [Cassandra](#cassandra-setup)
   - [Redis](#redis-setup)
 
-### PostgreSQL setup:
+### PostgreSQL Setup:
 1. Install PostgreSQL:
 ```console
 $ sudo apt install postgresql postgresql-contrib
@@ -148,7 +146,8 @@ postgres=#
 ```
 You now have PostgreSQL working in your node. 
 
-### Cassandra setup:
+### Cassandra Setup:
+For Cassandra we follow the [Debian packages installation guide](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html#installing-the-debian-packages).
 1. Add the Apache repository of Cassandra to the file `cassandra.sources.list`. We use the latest major version 5.0:
 ```console
 echo "deb https://debian.cassandra.apache.org 50x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list 
@@ -210,6 +209,7 @@ host    all             all             127.0.0.1/32            scram-sha-256
 host    all             all             node1-ip/32             md5
 host    all             all             node2-ip/32             md5
 host    all             all             node3-ip/32             md5
+host    all             all             node4-ip/32             md5
 ```
 
 To apply the changes restart the PostgreSQL service:
@@ -333,7 +333,7 @@ requirepass <your_password>
 ```
 3. Make Redis listen to a specific (your node's) IP Address. In order to achieve this, add the following line in `redis.conf`:
 ```txt
-bind <node's 3 IP address>
+bind <node's 4 IP address>
 ```
 To apply the changes restart the Redis service:
 ```console
@@ -392,63 +392,104 @@ $ ./dsdgen -scale <size> -dir <save_directory>
 ```
 > Specify the data sample size with the `size` parameter. The amount of data is in GBs.
 
-### Loading TPC-DS data to the databases
+
+## Loading TPC-DS data to the databases
+
+- [PostgreSQL](#load-data-to-postgresql)
+- [Cassandra](#load-data-to-cassandra)
+- [Redis](#load-data-to-redis)
+
 To set up the database schema and associations, the TPC-DS benchmark provides two essential files located in `DSGen-software-code-3.2.0rc1/tools`:
 1. `tpcds.sql`: Defines the schema with table definitions.
 2. `tpcds_ri.sql`: Specifies associations between tables by setting foreign key constraints.
 
-#### PostgreSQL
+Most of the scripts referenced below retrieve authentication and connection details from a `.env` file structured as follows:
+```.env
+POSTGRESQL_USER=<your_user>
+POSTGRESQL_PASSWORD=<your_password>
+POSTGRESQL_HOST=<postgres_host>
+POSTGRESQL_DATABASE=<postgres_db>
+POSTGRESQL_SCHEMA=<schema_name>
 
-##### Schema creation:
-Since both are SQL files, they can be used directly without any preprocessing. For this purpose `PostgreSQL/create_schema_pg.sh` is created which executes both, `tpcds.sql` & `tpcds_ri.sql`.  
+CASSANDRA_USER=<your_user>
+CASSANDRA_PASSWORD=<your_password>
+CASSANDRA_HOST=<cassandra_host>
+CASSANDRA_KEYSPACE=<keyspace_name>
 
-##### Data Loading:
-The loading of data is accomplished through the `PostgreSQL/load_data_pg.sh` script, which performs the following steps:
-1. Establishes a connection with PostgreSQL database using information from a `.env` file.
+REDIS_DB=0
+REDIS_PASSWORD=<your_password>
+REDIS_HOST=<redis_host>
+
+TRINO_HOST=<coordinator_host>
+TRINO_PORT=8080
+```
+
+### Load Data to PostgreSQL
+
+#### Schema creation:
+Since both are SQL files, they can be used directly without any preprocessing. For this purpose `Databases/PostgreSQL/create_pg_schema.py` is created which executes both, `tpcds.sql` & `tpcds_ri.sql`.  
+
+#### Data Loading:
+The loading of data is accomplished through the `Databases/PostgreSQL/load_data_pg.py` script, which performs the following steps:
+1. Establishes a connection with PostgreSQL database using information from the `.env` file.
 2. Reads each `.dat` file under the `tpc_data` directory, where each file corresponds to a table and contains data for that table. The files use '|' as a delimiter.
 3. Utilizes the `COPY` command to efficiently load the data into the database.
 
-So after running the following commands:
+So after running the following commands under `Databases/PostgreSQL/` dir:
 ```console
-./PostgreSQL/create_schema_pg.sh
-.PostgreSQL/load_data_pg.sh
+python create_pg_schema.py
+python load_data_pg.py
 ```
 The database schema should be properly defined, and the PostgreSQL database should be populated with the corresponding data.
 
-#### Cassandra
+The `load_data_pg.py` script accepts an optional `--partition` parameter, allowing selective loading of tables based on partition strategy. You can specify a partition by running:
+```console
+python load_data_pg.py --partition 1
+```
+or
+```console
+python load_data_pg.py --partition 2
+```
+This will load only the tables defined in the specified partition (1 or 2). If no partition is provided, all tables are loaded by default.
 
-##### Schema creation:
+### Load Data to Cassandra
+
+#### Schema creation:
 As Cassandra lacks the concept of foreign keys and relational integrity, the file `DSGen-software-code-3.2.0rc1/tools/tpcds_ri.sql` is not utilized, and foreign key constraints are not considered. 
 We (correctly) assume that the data adheres to these constraints, and there is no intention to insert additional data or modify existing records.
 
-Since Cassandra does not support SQL, the schema is created using the file `Cassandra/schema.cql`, written in CQL (Cassandra Query Language). This file, after necessary modifications to fit Cassandra, defines a keyspace named `tpcds` and contains the same table definitions as `DSGen-software-code-3.2.0rc1/tools/tpcds.sql`. `Cassandra/create_schema_cql.sh` executes this file.
+Since Cassandra does not support SQL, the schema is created using the file `Databases/Cassandra/schema.cql`, written in CQL (Cassandra Query Language). This file, after necessary modifications to fit Cassandra, defines a keyspace named `tpcds` and contains the same table definitions as `DSGen-software-code-3.2.0rc1/tools/tpcds.sql`. `Cassandra/create_schema_cql.sh` executes this file.
 
-##### Data loading:
-Data loading in Cassandra follows a similar process to PostgreSQL. The script `Cassandra/load_data_cql.sh` is utilized, employing the `COPY` command to efficiently load the data into the Cassandra database.
+#### Data loading:
+Data loading in Cassandra follows a similar process to PostgreSQL. The script `Databases/Cassandra/load_data_cass.py` is utilized, employing the `COPY` command to efficiently load the data into the Cassandra database.
 
 Upon executing the following commands:
 ```console
-./Cassandra/create_schema_cql.sh
-./Cassandra/load_data_cql.sh
+python Databases/Cassandra/utils/create_schema_cql.py
+python Databases/Cassandra/load_data_cass.py
 ```
 The Cassandra database should have its schema properly established, and data should be successfully loaded.
 
-#### Redis
+Similar to `load_data_pg.py`, `load_data_cass.py` script accepts two parameters:
+- `--all_tables=true/false`: Specifies whether to load all tables. The default is `false`.
+- `--parition (1 or 2)`: Defines which partition to load (1 or 2).
 
-##### Schema creation:
+### Load Data to Redis
+
+#### Schema creation:
 Redis, being a key-value database without built-in support for structured schemas, necessitates an unconventional approach for querying data using Trino with SQL queries. To enable this, we generate JSON schema definition files, describing the structure of each "table" in a manner that Trino can interpret as if they were structured tables.
 
 The schema creation and data loading involve the following files:
-- `Redis/utils/tables.py`: Defines arrays/lists with essential information about table definitions, including table names, primary keys, table column names, and data types for each column.
-- `Redis/utils/json_schema.py`: Generates the JSON schema definition file for each table based on the information provided by tables.py.
+- `Databases/Redis/utils/tables.py`: Defines arrays/lists with essential information about table definitions, including table names, primary keys, table column names, and data types for each column.
+- `Databases/Redis/utils/json_schema.py`: Generates the JSON schema definition file for each table based on the information provided by tables.py.
 
 > The `json_schema.py` creates the schemas as the default location in the directory `/home/user/schemas`. This has to be the same as the directory you have specified in the `redis.properties` connector file of Trino. 
 
-##### Data loading:
-For loading data into Redis, the following modules and scripts are utilized in conjunction with `Redis/utils/tables.py`:
-- `Redis/utils/redis_connection.py`: Establishes a connection with Redis using information from a `.env` file.
-- `Redis/utils/load_data_redis_helper.py`: A module responsible for loading data into Redis utilizing hashes.
-- `Redis/load_data_redis.py`: Employes the above modules in order to properly load data into Redis.
+#### Data loading:
+For loading data into Redis, the following modules and scripts are utilized in conjunction with `Databases/Redis/utils/tables.py`:
+- `Databases/Redis/utils/redis_connection.py`: Establishes a connection with Redis using information from the `.env` file.
+- `Databases/Redis/utils/load_data_redis_helper.py`: A module responsible for loading data into Redis utilizing hashes.
+- `Databases/Redis/load_data_redis.py`: Employes the above modules in order to properly load data into Redis.
 
 Upon executing the following commands:
 ```console
@@ -457,5 +498,14 @@ Upon executing the following commands:
 ```
 Data is successfully inserted into Redis, and the JSON files are structured in a way that allows Trino to query the Redis data in a structured manner.
 
-##### Note: 
+Similar to the previous scripts, `load_data_redis.py` accepts the following parameters:
+- `--table <table_name>`: Specifies the name of the table to load into Redis.
+- `--partition [1/2]`: Loads data for all tables within the specified partition.
+- `--cleanup`: Cleans up the data file after processing. By default, no cleanup is performed.
+- `batch_processing`: Enables or disables batch processing. The default is `true`.
+
+#### Note: 
 Given that Redis is an in-memory database and certain tables contain millions of records, not all records can fit in memory. Consequently, the insertion process focuses on a subset of the data for practical considerations.
+
+
+## Benchmarks
