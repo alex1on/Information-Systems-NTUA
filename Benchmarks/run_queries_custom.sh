@@ -31,15 +31,16 @@ datetime=$(date +"%Y%m%d_%H%M")
 
 # Create CSV file for results
 CSV_FILE="$RESULTS_DIR/queries_exec_plan_$datetime.csv"
-echo "query,postgresql_run1,cassandra_run1,postgresql_run2,cassandra_run2" > "$CSV_FILE"
+echo "query,postgresql_run1,cassandra_run1,redis_run1,postgresql_run2,cassandra_run2,redis_run2" > "$CSV_FILE"
 
 # Queries to run
-#QUERIES=("001" "007" "008" "009" "013" "017" "019" "024" "025" "026" "027" "029" "034" "036" "039" "040" "043" "046" "047" "048" "050" "053" "054" "057" "059" "061" "062" "063" "064" "068" "073" "079" "084" "085" "088" "089" "090" "091" "093" "096" "099")
-QUERIES=("003" "004" "007" "009" "014" "018" "022" "024" "025" "028" "035" "038" "039" "049" "055" "056" "062" "064" "066" "071" "075" "078" "084" "086" "088" "090" "091")
-# QUERIES=("022")
+QUERIES=("002" "004" "005" "006" "011" "013" "014" "018" "023" "025" "027" "030" "033" "039" "040" "050" "051" "062" "066" "072" "075" "082" "083" "084" "085" "088" "090" "091" "097" "099")
 
 format_duration() {
-  local seconds=$(($1 / 1000))
+  # Check for undefined input  
+  local input_duration=${1:-0}
+  
+  local seconds=$(($input_duration / 1000))
   local minutes=$((seconds / 60))
   local hours=$((minutes / 60))
   local remaining_milliseconds=$(($1 % 1000))
@@ -49,7 +50,6 @@ format_duration() {
   # Following format: HH:mm:ss.xxx
   printf "%02d:%02d:%02d.%03d" "$hours" "$remaining_minutes" "$remaining_seconds" "$remaining_milliseconds"
 }
-
 
 # Iterate through specified queries
 for query in "${QUERIES[@]}"; do
@@ -61,14 +61,27 @@ for query in "${QUERIES[@]}"; do
     # Initialize variables for storing durations
     postgresql_run1_duration=""
     cassandra_run1_duration=""
+    redis_run1_duration=""
     postgresql_run2_duration=""
     cassandra_run2_duration=""
+    redis_run2_duration=""
+
+    # Check if Redis should be included for this query
+    if [[ "$query" == "030" || "$query" == "062" || "$query" == "090" ]]; then
+        DATABASES=("redis")
+    else
+        DATABASES=("postgresql" "cassandra")
+    fi
 
     for db in "${DATABASES[@]}"; do
 
         # Execute the query 2 times for each database
         for i in {1..2}; do
 
+            if [[ "$db" == "redis" ]]; then
+                # Modify the QUERY string by calling the Python script
+                QUERY=$(python ../Databases/Redis/utils/modify_query_redis.py "$QUERY")
+            fi
             # Define the full query with schema
             FULL_QUERY="USE $db.tpcds; $QUERY"
 
@@ -93,6 +106,8 @@ for query in "${QUERIES[@]}"; do
                         postgresql_run1_duration="$formatted_duration"
                     elif [ "$db" == "cassandra" ]; then
                         cassandra_run1_duration="$formatted_duration"
+                    elif [ "$db" == "redis" ]; then
+                        redis_run1_duration="$formatted_duration"
                     fi
                     ;;
                 2)
@@ -100,6 +115,8 @@ for query in "${QUERIES[@]}"; do
                         postgresql_run2_duration="$formatted_duration"
                     elif [ "$db" == "cassandra" ]; then
                         cassandra_run2_duration="$formatted_duration"
+                    elif [ "$db" == "redis" ]; then
+                        redis_run2_duration="$formatted_duration"
                     fi
                     ;;
             esac
@@ -107,5 +124,5 @@ for query in "${QUERIES[@]}"; do
     done
 
     # Save query and durations to results CSV file
-    echo "$(basename "$query_file" .sql),$postgresql_run1_duration,$cassandra_run1_duration,$postgresql_run2_duration,$cassandra_run2_duration" >> "$CSV_FILE"
+    echo "$(basename "$query_file" .sql),$postgresql_run1_duration,$cassandra_run1_duration,$redis_run1_duration,$postgresql_run2_duration,$cassandra_run2_duration,$redis_run2_duration" >> "$CSV_FILE"
 done

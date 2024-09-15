@@ -18,9 +18,9 @@ fi
 if [ -z "$1" ]; then
     QUERY_DIR="../../queries"
 elif [ "$1" == "partition1" ]; then
-    QUERY_DIR="../../queries_partition1"
+    QUERY_DIR="../../queries_strategy1"
 elif [ "$1" == "partition2" ]; then
-    QUERY_DIR="../../queries_partition2"
+    QUERY_DIR="../../queries_strategy2"
 else
     echo "Invalid parameter. Usage: $0 [partition1|partition2]"
     exit 1
@@ -40,7 +40,7 @@ CSV_FILE="$RESULTS_DIR/queries_distributed_$1_$datetime.csv"
 echo "query,run1,run2" > "$CSV_FILE"
 
 # Queries to run
-QUERIES=("003" "004" "007" "009" "018" "022" "024" "025" "028" "035" "038" "039" "049" "055" "056" "062" "064" "066" "071" "075" "078" "084" "086" "088" "090" "091")
+QUERIES=("002" "004" "005" "011" "014" "023" "033" "051" "066" "072" "075" "082" "083" "097")
 
 format_duration() {
   local seconds=$(($1 / 1000))
@@ -60,6 +60,10 @@ for query in "${QUERIES[@]}"; do
 
     # Extract the SQL query from the file
     QUERY=$(cat "$query_file")
+
+    # Modify the QUERY string by calling the Python script
+    QUERY=$(python ../Databases/Redis/utils/modify_query_redis.py "$QUERY")
+
 
     # Initialize variables for storing durations
     run1_duration=""

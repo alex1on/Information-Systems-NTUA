@@ -15,7 +15,7 @@ data = pd.read_csv('../query_results_merged/no_dist_bench_10092024.csv')
 
 # Queries for each group
 group1_queries = ['query002', 'query004', 'query005', 'query011', 'query014', 'query023', 'query033', 'query051', 'query066', 'query072', 'query075', 'query082', 'query083', 'query097']
-group2_queries = ['query006', 'query013', 'query018', 'query027', 'query030', 'query039', 'query040', 'query050', 'query084', 'query085', 'query088', 'query090', 'query091', 'query099']
+group2_queries = ['query006', 'query013', 'query018', 'query027', 'query030', 'query039', 'query040', 'query050', 'guery062', 'query084', 'query085', 'query088', 'query090', 'query091', 'query099']
 group3_queries = ['query030', 'query062', 'query090']
 
 # Convert time strings to seconds for all relevant columns
@@ -52,10 +52,8 @@ def calculate_avg(df, queries, include_redis=False):
 
 # Function to plot and save the bar plot with value labels
 def plot_bar_with_labels(avg_times, labels, title, filename, include_redis=False):
-    plt.style.use('ggplot')
-    
     # Create a wider figure to avoid overlap when Redis is included
-    fig, ax = plt.subplots(figsize=(10, 7)) if include_redis else plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(10, 7), facecolor='white') if include_redis else plt.subplots(figsize=(8, 6), facecolor='white')
     
     # Labels for x-axis (PostgreSQL, Cassandra, Redis if included)
     x_labels = ['PostgreSQL', 'Cassandra']
@@ -98,12 +96,9 @@ def plot_bar_with_labels(avg_times, labels, title, filename, include_redis=False
     # Add a legend
     ax.legend()
 
-    # Add gridlines for better readability
-    ax.grid(True, which='both', axis='y', linestyle='--', linewidth=0.7, color='gray', alpha=0.7)
-
     # Save the figure
     plt.tight_layout()
-    plt.savefig(f'figures/{filename}')
+    plt.savefig(f'figures/{filename}', dpi=300)
     plt.close()
 
 
