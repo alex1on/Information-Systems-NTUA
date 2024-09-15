@@ -15,11 +15,7 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Distributed Execution of SQL Queries over Trino \\
-	% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
-	% should not be used}
-	\thanks{Identify applicable funding agency here. If none, delete this.}
-}
+\title{Distributed Execution of SQL Queries over Trino}
 
 \author{\IEEEauthorblockN{Alexandros Ionitsa}
 	\IEEEauthorblockA{\textit{Dept. of Electrical \& Computer Engineering} \\
@@ -79,7 +75,7 @@ In this research, we benchmark the performance of Trino across different types o
 storage technologies. In more detail, we establish a Trino cluster consisting of four nodes, a coordinator and three workers,
 where each of them is equipped with a different storage system: PostgreSQL on worker1, Cassandra on worker2 and Redis on worker3.
 The diversity among these three database management systems (DBMS) helps us cover three different data models:
-Relational, Wide-Column and Key-value providing a more versatile data and query management in our cluster. After, the installation and set up of those three specific stores, we generate and load
+Relational, Wide-Column and Key-value respectively providing a more versatile data and query management in our cluster. After, the installation and set up of those three specific stores, we generate and load
 data using the well-known TPC-DS \cite{b8} benchmark which is also utilized for query generation.
 The size of the data is large enough so that it won't fit in memory, in the order of several GB (milions of records).
 The queries imposed to our dataset have a large variety from simple queries (selects) to complex ones (multiple joins and aggregations) while targeting all the dataset tables.
@@ -186,7 +182,7 @@ By combining the components mentioned before, Trino gains the ability to represe
 \subsubsection{\textbf{\underline{Architecture}}}
 
 Summarizing the above, a Trino cluster consists of a single node and one or more worker nodes. The coordinator is responsible for admitting, parsing, planning and
-optimizing queries as well as query orchestration. Worker nodes are responsible for query processing. Figure 1 illustrates a simplified view of Trino architechture:
+optimizing queries as well as query orchestration. Worker nodes are responsible for query processing. Figure \ref{fig:trino_architechture} illustrates a simplified view of Trino architechture:
 \begin{figure}[h]
 	\includegraphics[width=0.5\textwidth]{images/trino-architecture.png}
 	\caption{Trino Architechture}
@@ -198,34 +194,6 @@ The client sends an HTTP request containing a SQL statement to the coordinator. 
 creating and optimizing distributed execution plan. The coordinator distributes this plan to workers, starts execution of tasks and then begins to enumerate splits,
 which are sections of a larger data set. Splits are assigned to the tasks responsible for reading this data.
 
-
-% \subsubsection{\textbf{\underline{Query Execution Model}}}
-
-% In Trino's query execution model, SQL statements are executed by transforming them into queries, which are then distributed across the cluster.
-% A statement in Trino refers to the textual representation of SQL, while a query refers to the configuration and components instantiated to execute that statement.
-
-% When Trino parses a statement, it converts it into a query and creates a distributed query plan, realized as interconnected stages
-% running on Trino workers. The execution process involves stages, tasks, splits, connectors, and other components working together
-% to produce a result.
-
-% \begin{itemize}
-% 	\item \textbf{Stage:} Trino breaks up query execution into a hierarchy of stages, forming a tree-like structure.
-% 	      Stages represent different sections of the distributed query plan and are responsible for aggregating outputs from other stages.
-% 	      The coordinator models the plan using stages, but stages themselves do not run on Trino workers.
-% 	\item \textbf{Task:} Stages are implemented as a series of tasks distributed over Trino workers.
-% 	      Tasks execute in parallel and operate on splits, which are sections of a larger dataset. Tasks are crucial in deconstructing the
-% 	      distributed query plan, and they have inputs and outputs. The execution of a stage involves a network of Trino workers working on tasks.
-% 	\item \textbf{Split:} Tasks operate on splits, which are sections of the dataset. Splits are obtained from connectors, and during query
-% 	      scheduling, the coordinator queries a connector for a list of available splits. The coordinator tracks the machines running tasks and the
-% 	      splits being processed.
-% 	\item \textbf{Driver:} Tasks contain one or more parallel drivers, acting as the lowest level of parallelism. Drivers process data and combine
-% 	      operators to produce output, which is then aggregated and delivered to another task in a different stage.
-% 	\item \textbf{Operator:} Operators consume, transform, and produce data. Examples include a table scan fetching data from a
-% 	      connector, and a filter operator producing a subset of data by applying a predicate. Operators are building blocks for executing the stages
-% 	      of a query.
-% 	\item \textbf{Exchange:} Exchanges transfer data between Trino nodes for different stages. Tasks produce data into an output buffer and consume
-% 	      data from other tasks using an exchange client. Exchanges facilitate the flow of data between stages in a distributed query plan.
-% \end{itemize}
 
 \subsection{PostgreSQL}
 
@@ -262,7 +230,6 @@ providing high availability with no single point of failure. Some of its main fe
 \end{itemize}
 
 These features, in addition to its efficiency and easy scalability contribute to Cassandra being a very powerful and widely used NoSQL database and makes it a perfect database to experiment on.
-% In our project, we also examine Cassandra's scalability so we consider two versions of Cassandra cluster: a single node cluster and a two-node cluster with replication factor of two.
 
 \subsection{Redis}
 
@@ -295,7 +262,7 @@ In general, TPC-DS is:
 	\item Industry standard benchmark (OLAP / Data Warehouse).
 	\item Implemented for many analytical processing systems - RDBMS, Apache Spark, Apache Flink, etc.
 	\item It provides a wide range of different SQL queries.
-	\item In incorporates the tools to generate input data of different sizes.
+	\item It incorporates the tools to generate input data of different sizes.
 \end{itemize}
 
 In our project, TPC-DS is utilized for data and query generation.
@@ -309,8 +276,8 @@ More in-depth details, instructions and commands can be found in our \textcolor{
 \subsection{Cluster and Virtual Machines}
 \label{sec:cluster-and-virtual-machines}
 
-For our project we used four virtual machines (1 coordinator and 3 workers) that were provided by ~okeanos-knossos \cite{b12}.
-okeanos-knossos is a GRNET'S cloud service (IaaS) for the Greek Research and Academic Community that gives access to resources such as
+For our project we used four virtual machines (1 coordinator and 3 workers) that were provided by okeanos-knossos \cite{b12}.
+Okeanos-knossos is a GRNET'S cloud service (IaaS) for the Greek Research and Academic Community that gives access to resources such as
 virtual machines and virtual networks. Each virtual machine has the same following specifications:
 
 \begin{itemize}
@@ -340,7 +307,7 @@ we had to upgrade to 22.04.
 
 \subsection{Prerequisites}
 
-Before we begin, we mention the tools that need to be install:
+Before we begin, we mention the tools that need to be installed:
 
 \begin{itemize}
 	\item {Java 17.03 or later version}
@@ -389,7 +356,7 @@ file, setting the \texttt{listen\_addresses} parameter to the desired LAN IP (19
 For Cassandra, we adjusted parameters like authenticator, authorizer, seeds, listen\_address and rpc\_address that are located in \texttt{/etc/cassandra/cassandra.yaml} as follows:
 
 \begin{itemize}
-	\item \textbf{authenticator:} class\_name : \\org.apache.cassandra.auth.PasswordAuthenticator
+	\item \textbf{authenticator:} \\class\_name : \\org.apache.cassandra.auth.PasswordAuthenticator
 	\item \textbf{authorizer:} CassandraAuthorizer
 	\item \textbf{rpc\_address, listen\_address and seeds:} 192.168.1.3 (IP address of worker 2 to whom Cassandra is installed)
 \end{itemize}
@@ -413,7 +380,7 @@ utilizing the Makefile that is included in the zip file. Next, we used dsdgen ex
 \subsection{Data loading}
 
 In order to load the data into the different data sources, we created proper database schemas in PostgreSQL and Cassandra through
-tpcds.sql file that creates the tables and \texttt{tpcds\_ri.sql} that specifies foreign key constraints. Since Cassandra and Redis don't support foreign key constraints, they were applied only to PostgreSQL. Our
+\texttt{tpcds.sql} file that creates the tables and \texttt{tpcds\_ri.sql} that specifies foreign key constraints. Since Cassandra and Redis don't support foreign key constraints, they were applied only to PostgreSQL. Our
 study is focusing only on querying already existing data and there is no intention to insert, delete or update those data. Since data obbey the constraints in PostgreSQL, we can be sure that the same holds
 for Cassandra and Redis.
 
@@ -559,7 +526,7 @@ respective groups.
 \begin{table*}[htbp]  % The * ensures the table takes up both columns
 	\caption{Categorization of Selected TPC-DS Queries}
 	\begin{center}
-		\begin{tabular}{|c|c|}
+		\begin{tabular}{|l|c|}
 			\hline
 			\textbf{Group}                         & \textbf{Queries}                                          \\
 			\hline
@@ -567,7 +534,7 @@ respective groups.
 			\hline
 			\textbf{Group 2: Single Fact Table}    & 6, 13, 18, 27, 30, 39, 40, 50, 62, 84, 85, 88, 90, 91, 99 \\
 			\hline
-			\textbf{Group 3: Web Channel Tables}   & 30, 62, 85, 90                                            \\
+			\textbf{Group 3: Web Channel Tables}   & 30, 62, 90                                                \\
 			\hline
 		\end{tabular}
 		\label{table:query-categorization}
@@ -585,9 +552,9 @@ The full comparison results between PostgreSQL, Cassandra and Redis on the same 
 The performance measurements from the first test without data distribution (\ref{sec:no-data-distribution})
 revealed a clear performance disparity between PostgreSQL, Cassandra, and Redis. PostgreSQL outperformed
 the others in most queries, while Redis was significantly slower, as expected, due to its poor optimization
-for large datasets (add reference). Cassandra, while generally trailing PostgreSQL, showed better performance
+for large datasets. Cassandra, while generally trailing PostgreSQL, showed better performance
 in some queries, though there were significant slowdowns in certain outliers.
-%TODO: (insert type of queries that was faster).
+
 
 Running the base benchmark provided us with a better understanding on each database's performance on
 different queries resulting in a clearer view for our following distribution strategies.
@@ -698,7 +665,7 @@ while keeping PostgreSQL at the core of handling complex operations.
 Table \ref{table:data-distribution-2} depicts the data distribution for this strategy.
 
 \begin{table}[htbp]
-	\caption{Optimized Fact and Dimension Consolidation Strategy - Data Parition}
+	\caption{Optimized Fact and Dimension Consolidation Strategy - Data Partition}
 	\begin{center}
 		\begin{tabular}{|l|c|c|c|}
 			\hline
@@ -746,7 +713,7 @@ In this section though, we focus to the Trino configuration and the impact it ha
 	\item \textbf{3 Workers:} All nodes (except Redis node) are active.
 \end{itemize}
 
-Generally, the Redis node we chose it keep it inactive in all experiments as it had conflicting RAM usage, both for the Redis process and the Trino worker process so the system was resulting in many OOM (out-of-memory errors).
+Generally, the Redis node we chose to keep it inactive in all experiments as it had conflicting RAM usage, both for the Redis process and the Trino worker process so the system was resulting in many OOM (out-of-memory errors).
 
 
 \section{Results and Analysis}
@@ -767,7 +734,7 @@ In Figures 10 to 12 we showcase the performance of each database in each query g
 	\label{fig:psql-cass-group1}
 \end{figure}
 
-From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) with multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino (add reference here).
+From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on average a 4.5x speedup comparing to Cassandra on queries that consist of multiple big tables (fact tables) with multiple joins (group1 queries). PostgreSQL was expected to be faster in these type of queries considering that Cassandra do not natively support joins and are entirely handled by Trino.
 
 \begin{figure}[h]
 	\centering
@@ -776,7 +743,7 @@ From Figure ~\ref{fig:psql-cass-group1} we conclude that PostgreSQL has on avera
 	\label{fig:psql-cass-group2}
 \end{figure}
 
-In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query caching and dynamic filtering (reference required) compared to Cassandra and Trino.
+In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on queries that consisted only one fact table and its dimension tables. The queries in this group generally had more frequent aggregations and less frequent joins, especially between large tables. PostgreSQL in this test was only 1.5x faster on average than Cassandra on the same queries. This changes, though, on the second consecutive run where PostgreSQL queries run 3x times faster due to better query caching and dynamic filtering \cite{b14} compared to Cassandra and Trino.
 
 \begin{figure}[h]
 	\centering
@@ -785,7 +752,7 @@ In Figure ~\ref{fig:psql-cass-group2} we compared PostgreSQL and Cassandra on qu
 	\label{fig:psql-cass-redis-group3}
 \end{figure}
 
-Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra. This performance penalty is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all of its records and Trino performs any required filtering on all the initial dataset.
+Lastly, Redis queries performed on average 22x slower than PostgreSQL and 5.6x slower than Cassandra \ref{fig:psql-cass-redis-group3}. This performance penalty is mostly attributed on slower table retrieval from Redis. Redis being a key-store database has no table indexing and is required to use SCAN on all of its records and Trino performs any required filtering on all the initial dataset.
 
 To sum up, our first test showed a clear ranking between the 3 databases, with PostgreSQL performing considerably better than Cassandra with Redis being a distant third.
 
@@ -819,7 +786,7 @@ In the current experiment, we opted for a data distribution with no data replica
 	\label{fig:distro1-distro2}
 \end{figure}
 
-As ~\ref{fig:distro1-distro2} showcases that a distribution strategy with a lighter load on Redis results in a far better query performance. On average, the current strategy is 2.5x faster than the previous strategy and only 12\% slower than the original run on PostgreSQL only.
+Figure ~\ref{fig:distro1-distro2} showcases that a distribution strategy with a lighter load on Redis results in a far better query performance. On average, the current strategy is 2.5x faster than the previous strategy and only 12\% slower than the original run on PostgreSQL only.
 
 Analyzing the execution plans of the queries we again see that the Trino cluster takes a significant time retrieving data from each data store and the networking penalty is affecting negatively the query performance.
 
@@ -839,26 +806,43 @@ In Figure ~\ref{fig:distro-workers} we present the performance impact on the que
 
 As anticipated, increasing the number of nodes led to a noticeable performance improvement. The most significant gain occurred when scaling from 1 to 2 nodes, with an average query run time reduction of 27\%. However, further node increases provided only a moderate performance boost, yielding an additional 5\% improvement.
 
-Observations showcased that network data transfers were proportioned with the number of nodes which was again expected. We also checked the LAN performance using the \texttt{iperf3} tool. The results showcased that the network connectivity was sub optimal for such a use case and our test bench was taking a hit from it.
+Observations showcased that network data transfers were proportional with the number of nodes which was again expected. We also checked the LAN performance using the \texttt{iperf3} tool. The results showcased that the network connectivity was sub optimal for such a use case and our test bench was taking a hit from it.
 
 \section{Conclusion}
 
-To summarize, in this paper we measured the Trino performance on distributed query execution of a subset of the TPC-DS benchmarking suite with various distribution strategies and configurations. Our best tests while on average performe marginally slower than a direct run on PostgreSQL provide use with valuable information. In many use cases, data distribution from various sources is a necessity and not an option. We showcased that Trino can perform on par with a native SQL database while running SQL queries on data sources that do not natively support these kind of operations. Further work could test Trino performance on more powerful clusters with better resources and more advanced distribution strategies. A good staring point could be to use the Redis database as an intermediate query result caching database instead of a direct data source. Nonetheless, Trino can be a powerful and performant distributed engine in cases where many data sources have to be used simultaneously without having to rely on ETL operations to make the data queryable.
+To summarize, in this paper we measured the Trino performance on distributed query execution of a subset of the TPC-DS benchmarking suite with various distribution strategies and configurations. Our best tests while on average performed marginally slower than a direct run on PostgreSQL they provided us with valuable information. In many use cases, data distribution from various sources is a necessity and not an option. We showcased that Trino can perform on par with a native SQL database while running SQL queries on data sources that do not natively support these kind of operations. Further work could test Trino performance on more powerful clusters with better resources and more advanced distribution strategies. A good staring point could be to use the Redis database as an intermediate query result caching database instead of a direct data source. Nonetheless, Trino can be a powerful and a performant distributed engine in cases where many data sources have to be used simultaneously without having to rely on ETL operations to make the data queryable.
 
 \begin{thebibliography}{00}
-	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," 2019 IEEE 35th International Conference on Data Engineering (ICDE), Macao, China, 2019,
-	\bibitem{b2} Z. Luo et al., "From Batch Processing to Real Time Analytics: Running Presto® at Scale," 2022 IEEE 38th International Conference on Data Engineering (ICDE), Kuala Lumpur, Malaysia, 2022, pp. 1598-1609
-	\bibitem{b3} Trino. (2024). Trino | Distributed SQL query engine for big data. Available: \href{https://trino.io/}{https://trino.io/}.
-	\bibitem{b4} “Engineering data analytics with Presto and Apache Parquet at Uber,” 2017. [Online]. Available: \href{https://www.uber.com/blog/presto/}{https://www.uber.com/blog/presto/}
-	\bibitem{b5} C. Tang et al. “Hybrid-cloud SQL federation system at Twitter,” in ECSA (Companion), 2021.
-	\bibitem{b6} “Serving hybrid-cloud SQL interactive queries at Twitter,” in European Conference on Software Architecture. Springer, 2022, pp. 3–21.
-	\bibitem{b7} “Presto at Pinterest,” 2019. [Online]. Available: \href{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}
-	\bibitem{b8} TPC Benchmark™ DS - Standard Specification, Version 3.2.0, June 2021
-	\bibitem{b9} Cristian Cardas, José F. Aldana-Martín, Antonio M. Burgueño-Romero, Antonio J. Nebro, Jose M. Mateos, and Juan J. Sánchez. 2022. On the performance of SQL scalable systems on Kubernetes: a comparative study. Cluster Computing 26, 3 (Jun 2023)
-	\bibitem{b10} V. Giannakouris, N. Papailiou, D. Tsoumakos and N. Koziris, "MuSQLE: Distributed SQL query execution over multiple engine environments," 2016 IEEE International Conference on Big Data (Big Data), Washington, DC, USA, 2016
-	\bibitem{b11} Ahmad Houwaiji "Trino Deep Dive" 2023. [Online]. Available: \href{https://whitestork.me/blog/13/Trino-Deep-Dive}{https://whitestork.me/blog/13/Trino-Deep-Dive}
-	\bibitem{b12} ~okeanos-knossos. [Online]. \href{https://okeanos-knossos.grnet.gr/home/}{https://okeanos-knossos.grnet.gr/home/}
-	\bibitem{b13} Pushdown in Trino [Online]. \href{https://trino.io/docs/current/optimizer/pushdown.html}{https://trino.io/docs/current/optimizer/pushdown.html}
-\end{thebibliography}
+
+	\bibitem{b1} R. Sethi et al., "Presto: SQL on Everything," in \textit{2019 IEEE 35th International Conference on Data Engineering (ICDE)}, Macao, China, 2019.
+	
+	\bibitem{b2} Z. Luo et al., "From Batch Processing to Real Time Analytics: Running Presto® at Scale," in \textit{2022 IEEE 38th International Conference on Data Engineering (ICDE)}, Kuala Lumpur, Malaysia, 2022, pp. 1598-1609.
+	
+	\bibitem{b3} Trino. (2024). "Trino | Distributed SQL query engine for big data." [Online]. Available: \url{https://trino.io/}
+	
+	\bibitem{b4} "Engineering data analytics with Presto and Apache Parquet at Uber," 2017. [Online]. Available: \url{https://www.uber.com/blog/presto/}
+	
+	\bibitem{b5} C. Tang et al., "Hybrid-cloud SQL federation system at Twitter," in \textit{ECSA (Companion)}, 2021.
+	
+	\bibitem{b6} C. Tang et al., "Serving hybrid-cloud SQL interactive queries at Twitter," in \textit{European Conference on Software Architecture}, Springer, 2022, pp. 3-21.
+	
+	\bibitem{b7} "Presto at Pinterest," 2019. [Online]. Available: \url{https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52}
+	
+	\bibitem{b8} TPC Benchmark™ DS - Standard Specification, Version 3.2.0, June 2021.
+	
+	\bibitem{b9} C. Cardas, J. F. Aldana-Martín, A. M. Burgueño-Romero, A. J. Nebro, J. M. Mateos, and J. J. Sánchez, "On the performance of SQL scalable systems on Kubernetes: a comparative study," in \textit{Cluster Computing}, vol. 26, no. 3, Jun. 2023.
+	
+	\bibitem{b10} V. Giannakouris, N. Papailiou, D. Tsoumakos, and N. Koziris, "MuSQLE: Distributed SQL query execution over multiple engine environments," in \textit{2016 IEEE International Conference on Big Data (Big Data)}, Washington, DC, USA, 2016.
+	
+	\bibitem{b11} A. Houwaiji, "Trino Deep Dive," 2023. [Online]. Available: \url{https://whitestork.me/blog/13/Trino-Deep-Dive}
+	
+	\bibitem{b12} "~okeanos-knossos." [Online]. Available: \url{https://okeanos-knossos.grnet.gr/home/}
+	
+	\bibitem{b13} "Pushdown in Trino." [Online]. Available: \url{https://trino.io/docs/current/optimizer/pushdown.html}
+	
+	\bibitem{b14} "An Overview of Caching for PostgreSQL." [Online]. Available: \url{https://severalnines.com/blog/overview-caching-postgresql/}
+	
+	\end{thebibliography}
+	
 
 \end{document}
